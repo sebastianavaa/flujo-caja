@@ -80,9 +80,14 @@ function getStatus(val: number, limit: number): "ok" | "warn" | "over" {
   return "over";
 }
 
+const CUOTAS_INICIALES: Cuota[] = [
+  { id: 1, name: "iPhone For Life", total: 1_617_000, numCuotas: 36, startMonth: 6, startYear: 2026, color: "#6c63ff" },
+  { id: 2, name: "Osojimix",        total:   120_000, numCuotas:  3, startMonth: 6, startYear: 2026, color: "#ff6584" },
+];
+
 export default function CalculadoraTarjeta() {
-  const [cuotas, setCuotas] = useState<Cuota[]>([]);
-  const [nextId, setNextId] = useState(1);
+  const [cuotas, setCuotas] = useState<Cuota[]>(CUOTAS_INICIALES);
+  const [nextId, setNextId] = useState(3);
   const [cupoRaw, setCupoRaw] = useState(0);
   const [cupoInvertido, setCupoInvertido] = useState(false);
   const [limitInput, setLimitInput] = useState(0);
