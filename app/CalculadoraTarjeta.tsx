@@ -90,7 +90,7 @@ export default function CalculadoraTarjeta() {
   const [nextId, setNextId] = useState(3);
   const [cupoRaw, setCupoRaw] = useState(0);
   const [cupoInvertido, setCupoInvertido] = useState(false);
-  const [limitInput, setLimitInput] = useState(0);
+  const [limitInput, setLimitInput] = useState(850_000);
   const [viewYear, setViewYear] = useState(REF_YEAR);
   const [viewMonth, setViewMonth] = useState(REF_MONTH);
 
