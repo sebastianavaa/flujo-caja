@@ -88,8 +88,7 @@ const CUOTAS_INICIALES: Cuota[] = [
 export default function CalculadoraTarjeta() {
   const [cuotas, setCuotas] = useState<Cuota[]>(CUOTAS_INICIALES);
   const [nextId, setNextId] = useState(3);
-  const [cupoRaw, setCupoRaw] = useState(0);
-  const [cupoInvertido, setCupoInvertido] = useState(true);
+  const [cupoDisponible, setCupoDisponible] = useState(0);
   const [limitInput, setLimitInput] = useState(850_000);
   const [viewYear, setViewYear] = useState(REF_YEAR);
   const [viewMonth, setViewMonth] = useState(REF_MONTH);
@@ -101,11 +100,11 @@ export default function CalculadoraTarjeta() {
   const [fMes, setFMes] = useState("");
   const [fAnio, setFAnio] = useState("");
 
-  // Cupo utilizado real: en modo invertido, el usuario ingresa lo que le queda
-  const cupoInput = cupoInvertido ? Math.max(0, CUPO_TOTAL - cupoRaw) : cupoRaw;
+  // Usuario ingresa cupo disponible; utilizado se deriva internamente
+  const cupoUtilizado = Math.max(0, CUPO_TOTAL - cupoDisponible);
 
   const comprometido = totalCuotasRestantes(cuotas);
-  const contado = Math.max(0, cupoInput - comprometido);
+  const contado = Math.max(0, cupoUtilizado - comprometido);
   const activasRef = cuotas.filter((c) => statusFor(c, REF_YEAR, REF_MONTH).status === "active");
   const maxRem = activasRef.reduce((m, c) => Math.max(m, statusFor(c, REF_YEAR, REF_MONTH).remaining), 0);
 
@@ -155,18 +154,6 @@ export default function CalculadoraTarjeta() {
 
   const activasN = cuotas.filter((c) => statusFor(c, viewYear, viewMonth).status === "active").length;
 
-  const toggleCupoMode = () => {
-    // Preserve the equivalent value when switching modes
-    if (!cupoInvertido) {
-      // switching to invertido: new raw = CUPO_TOTAL - cupoInput
-      setCupoRaw(Math.max(0, CUPO_TOTAL - cupoRaw));
-    } else {
-      // switching back to normal: new raw = CUPO_TOTAL - cupoRaw (= cupoInput)
-      setCupoRaw(cupoInput);
-    }
-    setCupoInvertido((v) => !v);
-  };
-
   return (
     <div>
       <div>
@@ -180,28 +167,19 @@ export default function CalculadoraTarjeta() {
         {/* INPUTS */}
         <div className={styles.inputsGrid}>
           <div className={`${styles.inputBox} ${styles.cupoBox}`}>
-            <div className={styles.ibLabelRow}>
-              <div className={styles.ibLabel}>
-                {cupoInvertido ? "Cupo disponible (banco)" : "Cupo utilizado (banco)"}
-              </div>
-              <button className={styles.toggleModeBtn} onClick={toggleCupoMode} title="Cambiar modo de ingreso">
-                ⇄
-              </button>
-            </div>
+            <div className={styles.ibLabel}>Cupo disponible (banco)</div>
             <div className={styles.ibRow}>
               <span className={styles.ibPrefix}>$</span>
               <input
                 className={styles.ibInput}
                 type="number"
-                value={cupoRaw || ""}
+                value={cupoDisponible || ""}
                 placeholder="0"
-                onChange={(e) => setCupoRaw(parseInt(e.target.value) || 0)}
+                onChange={(e) => setCupoDisponible(parseInt(e.target.value) || 0)}
               />
             </div>
             <div className={styles.ibSub}>
-              {cupoInvertido
-                ? `Utilizado: $${fmt(cupoInput)} de $${fmt(CUPO_TOTAL)}`
-                : `${comprometido > 0 ? `$${fmt(comprometido)} en cuotas · ` : ""}$${fmt(contado)} contado`}
+              {comprometido > 0 ? `$${fmt(comprometido)} en cuotas · ` : ""}${fmt(contado)} contado
             </div>
           </div>
           <div className={`${styles.inputBox} ${styles.limitBox}`}>
@@ -217,7 +195,7 @@ export default function CalculadoraTarjeta() {
               />
             </div>
             <div className={styles.ibSub}>
-              Margen libre = ${fmt(Math.max(0, limitInput - totalForMonth(cuotas, REF_YEAR, REF_MONTH) - contado))}
+              Margen libre = ${fmt(Math.max(0, limitInput - totalForMonth(cuotas, REF_YEAR, REF_MONTH)))}
             </div>
           </div>
         </div>
@@ -425,25 +403,25 @@ export default function CalculadoraTarjeta() {
           <div className={styles.formRow}>
             <div>
               <label className={styles.formLabel}>Descripción</label>
-              <input type="text" value={fName} onChange={(e) => setFName(e.target.value)} placeholder="Ej: MacBook Air" />
+              <input className={styles.formField} type="text" value={fName} onChange={(e) => setFName(e.target.value)} placeholder="Ej: MacBook Air" />
             </div>
             <div>
               <label className={styles.formLabel}>Monto total ($)</label>
-              <input type="number" value={fTotal} onChange={(e) => setFTotal(e.target.value)} placeholder="Ej: 500000" />
+              <input className={styles.formField} type="number" value={fTotal} onChange={(e) => setFTotal(e.target.value)} placeholder="500000" />
             </div>
           </div>
           <div className={`${styles.formRow} ${styles.formRowThree}`}>
             <div>
               <label className={styles.formLabel}>N° cuotas</label>
-              <input type="number" value={fCuotas} onChange={(e) => setFCuotas(e.target.value)} placeholder="12" min="1" />
+              <input className={styles.formField} type="number" value={fCuotas} onChange={(e) => setFCuotas(e.target.value)} placeholder="12" min="1" />
             </div>
             <div>
               <label className={styles.formLabel}>Mes inicio</label>
-              <input type="number" value={fMes} onChange={(e) => setFMes(e.target.value)} placeholder="6" min="1" max="12" />
+              <input className={styles.formField} type="number" value={fMes} onChange={(e) => setFMes(e.target.value)} placeholder="6" min="1" max="12" />
             </div>
             <div>
               <label className={styles.formLabel}>Año inicio</label>
-              <input type="number" value={fAnio} onChange={(e) => setFAnio(e.target.value)} placeholder="2026" min="2024" />
+              <input className={styles.formField} type="number" value={fAnio} onChange={(e) => setFAnio(e.target.value)} placeholder="2026" min="2024" />
             </div>
           </div>
           <button className={styles.btnAdd} onClick={addCuota}>+ Agregar compra</button>
