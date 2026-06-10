@@ -89,7 +89,7 @@ export default function CalculadoraTarjeta() {
   const [cuotas, setCuotas] = useState<Cuota[]>(CUOTAS_INICIALES);
   const [nextId, setNextId] = useState(3);
   const [cupoRaw, setCupoRaw] = useState(0);
-  const [cupoInvertido, setCupoInvertido] = useState(false);
+  const [cupoInvertido, setCupoInvertido] = useState(true);
   const [limitInput, setLimitInput] = useState(850_000);
   const [viewYear, setViewYear] = useState(REF_YEAR);
   const [viewMonth, setViewMonth] = useState(REF_MONTH);
