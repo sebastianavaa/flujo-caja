@@ -163,10 +163,8 @@ export default function CalculadoraTarjeta() {
   };
 
   return (
-    <div style={{ position: "relative", minHeight: "100vh", padding: "24px 16px 60px" }}>
-      <div className={styles.noise} />
-
-      <div className={styles.wrap}>
+    <div>
+      <div>
         {/* HEADER */}
         <header className={styles.header}>
           <div className={styles.labelTag}>💳 Control financiero</div>

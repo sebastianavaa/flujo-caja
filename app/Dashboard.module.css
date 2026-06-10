@@ -1,0 +1,155 @@
+.root {
+  position: relative;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.noise {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  opacity: 0.4;
+}
+
+.wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+  padding: 0 16px 80px;
+}
+
+/* NAV */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0 24px;
+  gap: 12px;
+}
+
+.navBrand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brandDot {
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent);
+}
+
+.brandName {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.navTabs {
+  display: flex;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 4px;
+}
+
+.navTab {
+  padding: 7px 16px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.navTab:hover {
+  color: var(--text);
+}
+
+.navTabActive {
+  background: var(--accent);
+  color: white;
+}
+
+/* CONTENT */
+.content {
+  min-height: 60vh;
+}
+
+/* FORECAST WRAPPER */
+.forecastWrap {
+  padding-top: 4px;
+}
+
+.forecastHeader {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.forecastTag {
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: #1e3a5f;
+  font-family: 'Space Mono', monospace;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.forecastTitle {
+  font-size: 30px;
+  font-weight: 800;
+  margin: 0 0 8px;
+  color: #f1f5f9;
+  letter-spacing: -1px;
+}
+
+.forecastBadges {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.badgeRole {
+  background: #818cf818;
+  color: #818cf8;
+  border: 1px solid #818cf833;
+  border-radius: 99px;
+  padding: 3px 12px;
+  font-size: 11px;
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+}
+
+.badgeOk {
+  background: #34d39918;
+  color: #34d399;
+  border: 1px solid #34d39933;
+  border-radius: 99px;
+  padding: 3px 12px;
+  font-size: 11px;
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+}
+
+.forecastSub {
+  color: #334155;
+  font-size: 12px;
+  font-family: 'Space Mono', monospace;
+}
