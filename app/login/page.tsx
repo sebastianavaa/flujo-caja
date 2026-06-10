@@ -1,6 +1,6 @@
-import { signIn } from "@/auth";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
+import { loginWithGoogle } from "@/app/actions/auth";
 
 export default async function LoginPage() {
   const session = await auth();
@@ -25,17 +25,14 @@ export default async function LoginPage() {
         textAlign: "center",
       }}>
         <div style={{ fontSize: 36, marginBottom: 16 }}>💳</div>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: "#fff", marginBottom: 6, letterSpacing: "-0.03em" }}>
+        <h1 style={{ fontSize: 22, fontWeight: 700, color: "#f4f4f5", marginBottom: 6, letterSpacing: "-0.03em" }}>
           Flujo de Caja
         </h1>
-        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginBottom: 32 }}>
+        <p style={{ fontSize: 13, color: "rgba(244,244,245,0.45)", marginBottom: 32 }}>
           Dashboard financiero personal
         </p>
 
-        <form action={async () => {
-          "use server";
-          await signIn("google", { redirectTo: "/" });
-        }}>
+        <form action={loginWithGoogle}>
           <button type="submit" style={{
             width: "100%",
             background: "#a380f5",
@@ -58,7 +55,7 @@ export default async function LoginPage() {
           </button>
         </form>
 
-        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", marginTop: 24 }}>
+        <p style={{ fontSize: 11, color: "rgba(244,244,245,0.2)", marginTop: 24 }}>
           Acceso restringido · solo uso personal
         </p>
       </div>
