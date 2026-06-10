@@ -10,6 +10,7 @@ const MONTHS_ES = [
 
 const REF_YEAR = 2026;
 const REF_MONTH = 6;
+const CUPO_TOTAL = 4_000_000;
 
 const COLORS = ["#6c63ff","#ff6584","#4ade80","#fbbf24","#06b6d4","#f472b6","#a78bfa"];
 
@@ -79,16 +80,12 @@ function getStatus(val: number, limit: number): "ok" | "warn" | "over" {
   return "over";
 }
 
-const INITIAL_CUOTAS: Cuota[] = [
-  { id: 1, name: "iPhone", total: 1617000, numCuotas: 36, startMonth: 6, startYear: 2026, color: "#6c63ff" },
-  { id: 2, name: "Osojimix", total: 120000, numCuotas: 3, startMonth: 6, startYear: 2026, color: "#ff6584" },
-];
-
 export default function CalculadoraTarjeta() {
-  const [cuotas, setCuotas] = useState<Cuota[]>(INITIAL_CUOTAS);
-  const [nextId, setNextId] = useState(3);
-  const [cupoInput, setCupoInput] = useState(2318000);
-  const [limitInput, setLimitInput] = useState(850000);
+  const [cuotas, setCuotas] = useState<Cuota[]>([]);
+  const [nextId, setNextId] = useState(1);
+  const [cupoRaw, setCupoRaw] = useState(0);
+  const [cupoInvertido, setCupoInvertido] = useState(false);
+  const [limitInput, setLimitInput] = useState(0);
   const [viewYear, setViewYear] = useState(REF_YEAR);
   const [viewMonth, setViewMonth] = useState(REF_MONTH);
 
@@ -98,6 +95,9 @@ export default function CalculadoraTarjeta() {
   const [fCuotas, setFCuotas] = useState("");
   const [fMes, setFMes] = useState("");
   const [fAnio, setFAnio] = useState("");
+
+  // Cupo utilizado real: en modo invertido, el usuario ingresa lo que le queda
+  const cupoInput = cupoInvertido ? Math.max(0, CUPO_TOTAL - cupoRaw) : cupoRaw;
 
   const comprometido = totalCuotasRestantes(cuotas);
   const contado = Math.max(0, cupoInput - comprometido);
@@ -150,9 +150,20 @@ export default function CalculadoraTarjeta() {
 
   const activasN = cuotas.filter((c) => statusFor(c, viewYear, viewMonth).status === "active").length;
 
+  const toggleCupoMode = () => {
+    // Preserve the equivalent value when switching modes
+    if (!cupoInvertido) {
+      // switching to invertido: new raw = CUPO_TOTAL - cupoInput
+      setCupoRaw(Math.max(0, CUPO_TOTAL - cupoRaw));
+    } else {
+      // switching back to normal: new raw = CUPO_TOTAL - cupoRaw (= cupoInput)
+      setCupoRaw(cupoInput);
+    }
+    setCupoInvertido((v) => !v);
+  };
+
   return (
     <div style={{ position: "relative", minHeight: "100vh", padding: "24px 16px 60px" }}>
-      {/* Noise overlay */}
       <div className={styles.noise} />
 
       <div className={styles.wrap}>
@@ -166,18 +177,28 @@ export default function CalculadoraTarjeta() {
         {/* INPUTS */}
         <div className={styles.inputsGrid}>
           <div className={`${styles.inputBox} ${styles.cupoBox}`}>
-            <div className={styles.ibLabel}>Cupo utilizado (banco)</div>
+            <div className={styles.ibLabelRow}>
+              <div className={styles.ibLabel}>
+                {cupoInvertido ? "Cupo disponible (banco)" : "Cupo utilizado (banco)"}
+              </div>
+              <button className={styles.toggleModeBtn} onClick={toggleCupoMode} title="Cambiar modo de ingreso">
+                ⇄
+              </button>
+            </div>
             <div className={styles.ibRow}>
               <span className={styles.ibPrefix}>$</span>
               <input
                 className={styles.ibInput}
                 type="number"
-                value={cupoInput}
-                onChange={(e) => setCupoInput(parseInt(e.target.value) || 0)}
+                value={cupoRaw || ""}
+                placeholder="0"
+                onChange={(e) => setCupoRaw(parseInt(e.target.value) || 0)}
               />
             </div>
             <div className={styles.ibSub}>
-              {comprometido > 0 ? `$${fmt(comprometido)} en cuotas · ` : ""}${fmt(contado)} contado
+              {cupoInvertido
+                ? `Utilizado: $${fmt(cupoInput)} de $${fmt(CUPO_TOTAL)}`
+                : `${comprometido > 0 ? `$${fmt(comprometido)} en cuotas · ` : ""}$${fmt(contado)} contado`}
             </div>
           </div>
           <div className={`${styles.inputBox} ${styles.limitBox}`}>
@@ -187,8 +208,9 @@ export default function CalculadoraTarjeta() {
               <input
                 className={`${styles.ibInput} ${styles.ibInputLimit}`}
                 type="number"
-                value={limitInput}
-                onChange={(e) => setLimitInput(parseInt(e.target.value) || 850000)}
+                value={limitInput || ""}
+                placeholder="0"
+                onChange={(e) => setLimitInput(parseInt(e.target.value) || 0)}
               />
             </div>
             <div className={styles.ibSub}>
@@ -396,7 +418,7 @@ export default function CalculadoraTarjeta() {
 
         {/* ADD FORM */}
         <div className={styles.addSection}>
-          <div className={`${styles.sectionTitle}`} style={{ marginBottom: 16 }}>Agregar compra en cuotas</div>
+          <div className={styles.sectionTitle} style={{ marginBottom: 16 }}>Agregar compra en cuotas</div>
           <div className={styles.formRow}>
             <div>
               <label className={styles.formLabel}>Descripción</label>
