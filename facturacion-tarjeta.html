@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Facturación Tarjeta</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0a0f; --surface:#12121a; --surface2:#1a1a26; --border:#2a2a3d;
+    --accent:#6c63ff; --accent2:#ff6584; --text:#e8e8f0; --muted:#6b6b8a;
+    --green:#4ade80; --yellow:#fbbf24; --orange:#fb923c; --red:#f87171;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;padding:24px 16px 60px;}
+  .noise{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");opacity:0.4;}
+  .wrap{max-width:680px;margin:0 auto;position:relative;z-index:1;}
+  header{margin-bottom:28px;}
+  .label-tag{display:inline-block;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);padding:3px 10px;border-radius:2px;margin-bottom:12px;}
+  h1{font-size:clamp(26px,5vw,38px);font-weight:800;line-height:1.1;letter-spacing:-.02em;}
+  h1 span{color:var(--accent);}
+  .subtitle{font-family:'Space Mono',monospace;font-size:12px;color:var(--muted);margin-top:8px;}
+
+  /* ── INPUTS GRID ── */
+  .inputs-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
+  .input-box{background:linear-gradient(135deg,#12121a 0%,#1a1230 100%);border:1px solid var(--border);border-radius:16px;padding:20px;position:relative;overflow:hidden;}
+  .input-box::before{content:'';position:absolute;top:-50px;right:-50px;width:150px;height:150px;border-radius:50%;pointer-events:none;}
+  .input-box.cupo-box::before{background:radial-gradient(circle,rgba(255,101,132,.12) 0%,transparent 70%);}
+  .input-box.limit-box::before{background:radial-gradient(circle,rgba(251,191,36,.1) 0%,transparent 70%);}
+  .ib-label{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;}
+  .ib-row{display:flex;align-items:center;gap:6px;}
+  .ib-prefix{font-family:'Space Mono',monospace;font-size:15px;font-weight:700;color:var(--muted);flex-shrink:0;}
+  .ib-input{flex:1;min-width:0;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Syne',sans-serif;font-size:18px;font-weight:800;padding:8px 10px;outline:none;transition:border-color .15s;letter-spacing:-.01em;width:100%;}
+  .ib-input:focus{border-color:var(--accent2);}
+  #limit-input:focus{border-color:var(--yellow);}
+  .ib-sub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:8px;}
+
+  /* ── CUPO BREAKDOWN ── */
+  .cupo-detail{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+  .cd-item .cd-l{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;}
+  .cd-item .cd-v{font-size:13px;font-weight:700;}
+
+  /* ── BILLING HERO ── */
+  .billing-hero{border-radius:16px;padding:22px;margin-bottom:20px;position:relative;overflow:hidden;border:1px solid var(--border);}
+  .billing-hero.ok{background:linear-gradient(135deg,#12121a 0%,#101824 100%);}
+  .billing-hero.warn{background:linear-gradient(135deg,#1a1400 0%,#120e00 100%);border-color:rgba(251,191,36,.3);}
+  .billing-hero.over{background:linear-gradient(135deg,#1a0808 0%,#120404 100%);border-color:rgba(248,113,113,.35);}
+  .billing-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;pointer-events:none;border-radius:50%;}
+  .billing-hero.ok::before{background:radial-gradient(circle,rgba(108,99,255,.13) 0%,transparent 70%);}
+  .billing-hero.warn::before{background:radial-gradient(circle,rgba(251,191,36,.1) 0%,transparent 70%);}
+  .billing-hero.over::before{background:radial-gradient(circle,rgba(248,113,113,.12) 0%,transparent 70%);}
+  .billing-label{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+  .status-chip{font-size:9px;padding:2px 8px;border-radius:20px;font-weight:700;letter-spacing:.05em;}
+  .chip-ok{background:rgba(74,222,128,.15);color:var(--green);}
+  .chip-warn{background:rgba(251,191,36,.15);color:var(--yellow);}
+  .chip-over{background:rgba(248,113,113,.15);color:var(--red);}
+  .billing-amount{font-size:clamp(32px,7vw,50px);font-weight:800;letter-spacing:-.03em;line-height:1;}
+  .billing-amount .currency{font-size:.44em;font-weight:600;color:var(--muted);vertical-align:super;margin-right:3px;}
+  /* limit bar */
+  .limit-bar-wrap{margin-top:14px;}
+  .limit-bar-labels{display:flex;justify-content:space-between;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:5px;}
+  .limit-bar-track{height:6px;background:var(--border);border-radius:4px;overflow:hidden;position:relative;}
+  .limit-bar-fill{height:100%;border-radius:4px;transition:width .4s ease,background .3s;}
+  .limit-bar-marker{position:absolute;top:-3px;width:2px;height:12px;background:rgba(255,255,255,.25);border-radius:1px;}
+  .billing-date{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);margin-top:10px;display:flex;align-items:center;gap:6px;}
+  .billing-date .dot{width:6px;height:6px;background:var(--accent2);border-radius:50%;animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+  .billing-sub-row{margin-top:14px;padding-top:14px;border-top:1px solid var(--border);display:flex;gap:20px;flex-wrap:wrap;}
+  .bs-item .bs-l{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;}
+  .bs-item .bs-v{font-size:14px;font-weight:700;}
+  .margen-chip{display:inline-block;font-family:'Space Mono',monospace;font-size:9px;padding:2px 8px;border-radius:20px;margin-left:6px;vertical-align:middle;}
+
+  /* ── MONTH NAV ── */
+  .month-nav{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+  .month-nav button{background:var(--surface);border:1px solid var(--border);color:var(--text);width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+  .month-nav button:hover{border-color:var(--accent);color:var(--accent);}
+  .month-nav .month-label{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;letter-spacing:.05em;flex:1;text-align:center;text-transform:uppercase;}
+
+  /* ── SECTION TITLE ── */
+  .section-title{font-size:11px;font-family:'Space Mono',monospace;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+  .section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+  /* ── TIMELINE ── */
+  .timeline-wrap{margin-bottom:22px;overflow-x:auto;padding-bottom:6px;}
+  .timeline-wrap::-webkit-scrollbar{height:3px;}
+  .timeline-wrap::-webkit-scrollbar-track{background:var(--border);border-radius:2px;}
+  .timeline-wrap::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px;}
+  .timeline{display:flex;gap:8px;min-width:max-content;}
+  .tl-month{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;min-width:105px;cursor:pointer;transition:all .15s;flex-shrink:0;}
+  .tl-month:hover{border-color:#3a3a5c;}
+  .tl-month.tl-current{border-color:var(--accent);background:rgba(108,99,255,.07);}
+  .tl-month.tl-over{border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.05);}
+  .tl-month.tl-warn{border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.04);}
+  .tl-month.tl-current.tl-over{border-color:var(--red);}
+  .tl-month.tl-current.tl-warn{border-color:var(--yellow);}
+  .tl-m-name{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;display:flex;align-items:center;gap:4px;}
+  .tl-m-amount{font-size:15px;font-weight:800;}
+  .tl-m-bar{margin-top:5px;height:3px;background:var(--border);border-radius:2px;overflow:hidden;position:relative;}
+  .tl-m-bar-fill{height:100%;border-radius:2px;transition:width .3s;}
+  .tl-m-cuotas{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:3px;}
+
+  /* ── CUOTA CARDS ── */
+  .cuota-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:9px;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;transition:border-color .2s;}
+  .cuota-card:hover{border-color:#3a3a5c;}
+  .cuota-card.paid{opacity:.4;}
+  .cuota-card.current-due{border-color:var(--accent);}
+  .cuota-info{min-width:0;}
+  .cuota-name{font-size:14px;font-weight:700;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .cuota-meta{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;}
+  .progress-bar-wrap{margin-top:7px;height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+  .progress-bar-fill{height:100%;border-radius:2px;transition:width .4s ease;}
+  .cuota-amount{text-align:right;flex-shrink:0;}
+  .cuota-fee{font-size:15px;font-weight:700;}
+  .cuota-num{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);text-align:right;margin-top:2px;}
+  .badge{display:inline-block;font-family:'Space Mono',monospace;font-size:9px;padding:2px 7px;border-radius:3px;letter-spacing:.05em;text-transform:uppercase;}
+  .badge-active{background:rgba(108,99,255,.18);color:var(--accent);}
+  .badge-paid{background:rgba(74,222,128,.12);color:var(--green);}
+  .badge-future{background:rgba(251,191,36,.12);color:var(--yellow);}
+  .btn-delete{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:4px;border-radius:4px;transition:color .15s;align-self:start;}
+  .btn-delete:hover{color:var(--accent2);}
+
+  /* ── TOTALES ── */
+  .totals-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-top:1px solid var(--border);}
+  .totals-row .t-label{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);}
+  .totals-row .t-val{font-size:15px;font-weight:700;}
+  .totals-row.grand .t-label{color:var(--text);font-size:12px;}
+  .totals-row.grand .t-val{font-size:20px;}
+
+  /* ── MARGEN LIBRE ── */
+  .margen-card{background:var(--surface);border-radius:12px;padding:16px;margin-bottom:20px;border:1px solid;}
+  .margen-card.ok{border-color:rgba(74,222,128,.3);}
+  .margen-card.tight{border-color:rgba(251,191,36,.3);}
+  .margen-card.over{border-color:rgba(248,113,113,.3);}
+  .mc-row{display:flex;justify-content:space-between;align-items:center;}
+  .mc-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
+  .mc-val{font-size:18px;font-weight:800;}
+
+  /* ── ADD FORM ── */
+  .add-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-top:20px;}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+  .form-row.three{grid-template-columns:2fr 1fr 1fr;}
+  label{display:block;font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;}
+  input[type="text"],input[type="number"]{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Space Mono',monospace;font-size:13px;padding:10px 12px;outline:none;transition:border-color .15s;}
+  input:focus{border-color:var(--accent);}
+  input::placeholder{color:#3d3d5c;}
+  .btn-add{width:100%;background:var(--accent);color:white;border:none;border-radius:8px;padding:12px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:.05em;cursor:pointer;transition:all .15s;margin-top:4px;}
+  .btn-add:hover{background:#8b85ff;transform:translateY(-1px);}
+  .btn-add:active{transform:translateY(0);}
+  .empty-state{text-align:center;padding:20px;color:var(--muted);font-family:'Space Mono',monospace;font-size:11px;}
+
+  @media(max-width:480px){
+    .inputs-grid{grid-template-columns:1fr;}
+    .form-row,.form-row.three{grid-template-columns:1fr;}
+    .cupo-detail{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="noise"></div>
+<div class="wrap">
+
+  <header>
+    <div class="label-tag">💳 Control financiero</div>
+    <h1>Facturación<br><span>Tarjeta</span></h1>
+    <p class="subtitle">Ciclo de facturación: día 23 de cada mes</p>
+  </header>
+
+  <!-- INPUTS -->
+  <div class="inputs-grid">
+    <div class="input-box cupo-box">
+      <div class="ib-label">Cupo utilizado (banco)</div>
+      <div class="ib-row">
+        <span class="ib-prefix">$</span>
+        <input class="ib-input" type="number" id="cupo-input" value="2318000" oninput="render()">
+      </div>
+      <div class="ib-sub" id="cupo-sub">—</div>
+    </div>
+    <div class="input-box limit-box">
+      <div class="ib-label">Límite mensual deseado</div>
+      <div class="ib-row">
+        <span class="ib-prefix">$</span>
+        <input class="ib-input" type="number" id="limit-input" value="850000" oninput="render()">
+      </div>
+      <div class="ib-sub" id="limit-sub">—</div>
+    </div>
+  </div>
+
+  <!-- CUPO DETALLE -->
+  <div class="cupo-detail">
+    <div class="cd-item"><div class="cd-l">Cuotas comprometidas</div><div class="cd-v" id="cd-comp">—</div></div>
+    <div class="cd-item"><div class="cd-l">Libre (contado)</div><div class="cd-v" id="cd-free" style="color:var(--green)">—</div></div>
+    <div class="cd-item"><div class="cd-l">Meses con cuotas</div><div class="cd-v" id="cd-months">—</div></div>
+  </div>
+
+  <!-- BILLING HERO -->
+  <div class="billing-hero ok" id="billing-hero">
+    <div class="billing-label">
+      Pago estimado este ciclo
+      <span class="status-chip chip-ok" id="status-chip">OK</span>
+    </div>
+    <div class="billing-amount"><span class="currency">$</span><span id="hero-amount">0</span></div>
+    <!-- BARRA DE LÍMITE -->
+    <div class="limit-bar-wrap">
+      <div class="limit-bar-labels">
+        <span>$0</span>
+        <span id="bar-limit-label">Límite $850.000</span>
+      </div>
+      <div class="limit-bar-track">
+        <div class="limit-bar-fill" id="limit-bar-fill" style="width:0%;background:var(--green)"></div>
+        <div class="limit-bar-marker" id="limit-bar-marker" style="left:100%"></div>
+      </div>
+    </div>
+    <div class="billing-date"><span class="dot"></span><span id="billing-date-text">—</span></div>
+    <div class="billing-sub-row">
+      <div class="bs-item"><div class="bs-l">En cuotas</div><div class="bs-v" id="bs-cuotas">—</div></div>
+      <div class="bs-item"><div class="bs-l">Contado</div><div class="bs-v" id="bs-contado">—</div></div>
+      <div class="bs-item"><div class="bs-l">Margen libre</div><div class="bs-v" id="bs-margen">—</div></div>
+    </div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="section-title">Proyección 12 meses</div>
+  <div class="timeline-wrap"><div class="timeline" id="timeline"></div></div>
+
+  <!-- MONTH DETAIL -->
+  <div class="month-nav">
+    <button onclick="changeMonth(-1)">←</button>
+    <div class="month-label" id="month-label">—</div>
+    <button onclick="changeMonth(1)">→</button>
+  </div>
+
+  <div class="section-title">Detalle cuotas</div>
+  <div id="cuotas-list"></div>
+  <div id="totals-section" style="margin-bottom:24px;"></div>
+
+  <!-- ADD -->
+  <div class="add-section">
+    <div class="section-title" style="margin-bottom:16px;">Agregar compra en cuotas</div>
+    <div class="form-row">
+      <div><label>Descripción</label><input type="text" id="f-name" placeholder="Ej: MacBook Air"></div>
+      <div><label>Monto total ($)</label><input type="number" id="f-total" placeholder="Ej: 500000"></div>
+    </div>
+    <div class="form-row three">
+      <div><label>N° cuotas</label><input type="number" id="f-cuotas" placeholder="12" min="1"></div>
+      <div><label>Mes inicio</label><input type="number" id="f-mes" placeholder="6" min="1" max="12"></div>
+      <div><label>Año inicio</label><input type="number" id="f-anio" placeholder="2026" min="2024"></div>
+    </div>
+    <button class="btn-add" onclick="addCuota()">+ Agregar compra</button>
+  </div>
+
+</div>
+<script>
+const MONTHS_ES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const REF_YEAR=2026, REF_MONTH=6;
+let viewDate=new Date(2026,5,1);
+let cuotas=[
+  {id:1,name:'iPhone',total:1617000,numCuotas:36,startMonth:6,startYear:2026,color:'#6c63ff'},
+  {id:2,name:'Osojimix',total:120000,numCuotas:3,startMonth:6,startYear:2026,color:'#ff6584'}
+];
+let nextId=3;
+
+function fee(c){return Math.round(c.total/c.numCuotas);}
+function statusFor(c,year,month){
+  const si=c.startYear*12+(c.startMonth-1);
+  const vi=year*12+(month-1);
+  const ei=si+c.numCuotas-1;
+  if(vi<si)return{status:'future',num:null,remaining:c.numCuotas};
+  if(vi>ei)return{status:'paid',num:null,remaining:0};
+  const num=vi-si+1;
+  return{status:'active',num,remaining:c.numCuotas-num+1};
+}
+function totalForMonth(year,month){
+  return cuotas.reduce((s,c)=>{const{status}=statusFor(c,year,month);return status==='active'?s+fee(c):s;},0);
+}
+function totalCuotasRestantes(){
+  return cuotas.reduce((s,c)=>{
+    const{status,remaining}=statusFor(c,REF_YEAR,REF_MONTH);
+    if(status==='active')return s+remaining*fee(c);
+    if(status==='future')return s+c.total;
+    return s;
+  },0);
+}
+function fmt(n){return Math.round(n).toLocaleString('es-CL');}
+function getColor(val,limit){
+  if(limit<=0)return'var(--accent)';
+  const r=val/limit;
+  if(r<=0.8)return'var(--green)';
+  if(r<=1)return'var(--yellow)';
+  return'var(--red)';
+}
+function getStatus(val,limit){
+  if(limit<=0)return'ok';
+  const r=val/limit;
+  if(r<=0.8)return'ok';
+  if(r<=1)return'warn';
+  return'over';
+}
+
+function render(){
+  const cupoRaw=parseInt(document.getElementById('cupo-input').value)||0;
+  const limit=parseInt(document.getElementById('limit-input').value)||850000;
+
+  // ── CUPO DETALLE ──
+  const comprometido=totalCuotasRestantes();
+  const contado=Math.max(0,cupoRaw-comprometido);
+  const activasRef=cuotas.filter(c=>statusFor(c,REF_YEAR,REF_MONTH).status==='active');
+  const maxRem=activasRef.reduce((m,c)=>Math.max(m,statusFor(c,REF_YEAR,REF_MONTH).remaining),0);
+  document.getElementById('cd-comp').textContent=`$${fmt(comprometido)}`;
+  document.getElementById('cd-free').textContent=contado>0?`$${fmt(contado)}`:'$0';
+  document.getElementById('cd-months').textContent=maxRem>0?`${maxRem} meses`:'—';
+  document.getElementById('cupo-sub').textContent=`${comprometido>0?`$${fmt(comprometido)} en cuotas · `:''}$${fmt(contado)} contado`;
+  document.getElementById('limit-sub').textContent=`Margen libre = $${fmt(Math.max(0,limit-totalForMonth(REF_YEAR,REF_MONTH)-contado))}`;
+
+  // ── HERO (mes vista) ──
+  const year=viewDate.getFullYear();
+  const month=viewDate.getMonth()+1;
+  const cuotasMes=totalForMonth(year,month);
+  const isRef=(year===REF_YEAR&&month===REF_MONTH);
+  const contadoMes=isRef?contado:0;
+  const totalMes=cuotasMes+contadoMes;
+  const margen=limit-totalMes;
+  const st=getStatus(totalMes,limit);
+  const col=getColor(totalMes,limit);
+
+  // hero clases
+  const hero=document.getElementById('billing-hero');
+  hero.className=`billing-hero ${st}`;
+
+  // chip
+  const chip=document.getElementById('status-chip');
+  const chipLabels={ok:'✓ OK',warn:'⚠ ATENCIÓN',over:'✕ EXCEDE'};
+  const chipClasses={ok:'chip-ok',warn:'chip-warn',over:'chip-over'};
+  chip.textContent=chipLabels[st];
+  chip.className=`status-chip ${chipClasses[st]}`;
+
+  document.getElementById('hero-amount').textContent=fmt(totalMes);
+  document.getElementById('hero-amount').style.color=col;
+
+  // barra
+  const pct=limit>0?Math.min(Math.round(totalMes/limit*100),150):0;
+  const barFill=document.getElementById('limit-bar-fill');
+  barFill.style.width=Math.min(pct,100)+'%';
+  barFill.style.background=col;
+  document.getElementById('bar-limit-label').textContent=`Límite $${fmt(limit)}`;
+  // marker siempre al 100% si no excede, oculto si totalMes>limit (la barra ya llena)
+  const marker=document.getElementById('limit-bar-marker');
+  marker.style.left=pct>100?'calc(100% - 1px)':'100%';
+
+  const billingM=month===12?1:month+1;
+  const billingY=month===12?year+1:year;
+  document.getElementById('billing-date-text').textContent=`Facturación el 23 de ${MONTHS_ES[billingM-1].toLowerCase()} ${billingY}`;
+
+  document.getElementById('bs-cuotas').textContent=`$${fmt(cuotasMes)}`;
+  document.getElementById('bs-contado').textContent=isRef?`$${fmt(contadoMes)}`:'—';
+  const margenEl=document.getElementById('bs-margen');
+  if(margen>=0){margenEl.textContent=`$${fmt(margen)}`;margenEl.style.color='var(--green)';}
+  else{margenEl.textContent=`-$${fmt(-margen)}`;margenEl.style.color='var(--red)';}
+
+  // ── TIMELINE ──
+  const tlEl=document.getElementById('timeline');
+  tlEl.innerHTML='';
+  for(let i=0;i<12;i++){
+    const d=new Date(REF_YEAR,REF_MONTH-1+i,1);
+    const y=d.getFullYear(),m=d.getMonth()+1;
+    const t=totalForMonth(y,m)+(i===0?contado:0);
+    const activasN=cuotas.filter(c=>statusFor(c,y,m).status==='active').length;
+    const isCur=(y===year&&m===month);
+    const st2=getStatus(t,limit);
+    const col2=getColor(t,limit);
+    const pct2=limit>0?Math.min(Math.round(t/limit*100),100):0;
+    const div=document.createElement('div');
+    let cls=`tl-month${isCur?' tl-current':''}`;
+    if(st2==='over')cls+=' tl-over';
+    else if(st2==='warn')cls+=' tl-warn';
+    div.className=cls;
+    div.onclick=()=>{viewDate=new Date(y,m-1,1);render();};
+    const icon=st2==='over'?'🔴':st2==='warn'?'🟡':'';
+    div.innerHTML=`
+      <div class="tl-m-name">${icon?icon+' ':''}${MONTHS_ES[m-1].slice(0,3)} ${y}</div>
+      <div class="tl-m-amount" style="color:${col2}">$${fmt(t)}</div>
+      <div class="tl-m-bar"><div class="tl-m-bar-fill" style="width:${pct2}%;background:${col2}"></div></div>
+      <div class="tl-m-cuotas">${activasN} cuota${activasN!==1?'s':''}</div>`;
+    tlEl.appendChild(div);
+  }
+
+  // ── MONTH LABEL ──
+  document.getElementById('month-label').textContent=`${MONTHS_ES[month-1]} ${year}`;
+
+  // ── LISTA CUOTAS ──
+  const listEl=document.getElementById('cuotas-list');
+  listEl.innerHTML='';
+  if(!cuotas.length){listEl.innerHTML='<div class="empty-state">Sin compras en cuotas.</div>';}
+  cuotas.forEach(c=>{
+    const{status,num,remaining}=statusFor(c,year,month);
+    const f=fee(c);
+    const pct3=status==='active'?Math.round(num/c.numCuotas*100):status==='paid'?100:0;
+    const card=document.createElement('div');
+    card.className=`cuota-card${status==='paid'?' paid':''}${status==='active'?' current-due':''}`;
+    card.innerHTML=`
+      <div class="cuota-info">
+        <div class="cuota-name">${c.name}</div>
+        <div class="cuota-meta">
+          ${status==='active'?`<span class="badge badge-active">Activa</span><span>Cuota ${num} de ${c.numCuotas} · quedan ${remaining}</span>`
+            :status==='future'?`<span class="badge badge-future">Futura</span><span>Inicia ${MONTHS_ES[c.startMonth-1]} ${c.startYear}</span>`
+            :`<span class="badge badge-paid">Pagada</span><span>Completada</span>`}
+        </div>
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct3}%;background:${c.color}"></div></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:8px">
+        <div class="cuota-amount">
+          <div class="cuota-fee" style="color:${status==='active'?c.color:'var(--muted)'}">${status==='active'?`$${fmt(f)}`:'—'}</div>
+          <div class="cuota-num">${status!=='paid'?`$${fmt(f)}/mes`:`Total: $${fmt(c.total)}`}</div>
+        </div>
+        <button class="btn-delete" onclick="deleteCuota(${c.id})">✕</button>
+      </div>`;
+    listEl.appendChild(card);
+  });
+
+  // ── TOTALES ──
+  const totEl=document.getElementById('totals-section');
+  if(cuotas.length){
+    const aN=cuotas.filter(c=>statusFor(c,year,month).status==='active').length;
+    const margenColor=margen>=0?'var(--green)':'var(--red)';
+    const margenTxt=margen>=0?`$${fmt(margen)} disponible`:`-$${fmt(-margen)} excedido`;
+    totEl.innerHTML=`
+      <div class="totals-row">
+        <span class="t-label">Cuotas activas</span>
+        <span class="t-val" style="font-size:13px">${aN} compra${aN!==1?'s':''}</span>
+      </div>
+      ${isRef&&contado>0?`<div class="totals-row"><span class="t-label">Gasto al contado / otros</span><span class="t-val" style="color:var(--accent2)">$${fmt(contado)}</span></div>`:''}
+      <div class="totals-row">
+        <span class="t-label">Límite mensual</span>
+        <span class="t-val" style="font-size:13px;color:var(--yellow)">$${fmt(limit)}</span>
+      </div>
+      <div class="totals-row grand">
+        <span class="t-label">Total estimado · margen</span>
+        <span class="t-val" style="color:${col}">$${fmt(totalMes)} <span style="font-size:12px;color:${margenColor};font-weight:600">${margenTxt}</span></span>
+      </div>`;
+  } else {totEl.innerHTML='';}
+}
+
+function changeMonth(d){viewDate.setMonth(viewDate.getMonth()+d);render();}
+function addCuota(){
+  const name=document.getElementById('f-name').value.trim();
+  const total=parseInt(document.getElementById('f-total').value);
+  const nq=parseInt(document.getElementById('f-cuotas').value);
+  const mes=parseInt(document.getElementById('f-mes').value);
+  const anio=parseInt(document.getElementById('f-anio').value);
+  if(!name||isNaN(total)||isNaN(nq)||isNaN(mes)||isNaN(anio)){alert('Completa todos los campos.');return;}
+  const cols=['#6c63ff','#ff6584','#4ade80','#fbbf24','#06b6d4','#f472b6','#a78bfa'];
+  cuotas.push({id:nextId++,name,total,numCuotas:nq,startMonth:mes,startYear:anio,color:cols[cuotas.length%cols.length]});
+  ['f-name','f-total','f-cuotas','f-mes','f-anio'].forEach(id=>document.getElementById(id).value='');
+  render();
+}
+function deleteCuota(id){cuotas=cuotas.filter(c=>c.id!==id);render();}
+render();
+</script>
+</body>
+</html>
