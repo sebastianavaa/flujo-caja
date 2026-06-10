@@ -2,18 +2,32 @@
 @import "tailwindcss";
 
 :root {
-  --bg:       #000000;
-  --surface:  #1c1c1e;
-  --surface2: #2c2c2e;
-  --border:   rgba(255,255,255,0.09);
-  --accent:   #0A84FF;
-  --text:     #ffffff;
-  --secondary: rgba(255,255,255,0.55);
-  --muted:    rgba(255,255,255,0.28);
-  --green:    #30D158;
-  --yellow:   #FFD60A;
-  --orange:   #FF9F0A;
-  --red:      #FF453A;
+  /* Design tokens */
+  --bg-main:       #09090b;
+  --bg-card:       #141416;
+  --bg-element:    #222226;
+  --text-primary:  #f4f4f5;
+  --text-secondary:#8e8e93;
+  --accent-lila:   #a380f5;
+  --accent-violet: #5b3bb4;
+  --badge-bg:      #3a2a5c;
+  --badge-text:    #d6c7ff;
+  --alert-danger:  #e24a4a;
+
+  /* Aliases para CSS Modules */
+  --bg:       var(--bg-main);
+  --surface:  var(--bg-card);
+  --surface2: var(--bg-element);
+  --border:   rgba(163,128,245,0.14);
+  --accent:   var(--accent-lila);
+  --accent2:  var(--badge-text);
+  --text:     var(--text-primary);
+  --secondary:var(--text-secondary);
+  --muted:    rgba(142,142,147,0.5);
+  --green:    #34d399;
+  --yellow:   #fbbf24;
+  --orange:   #fb923c;
+  --red:      var(--alert-danger);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }

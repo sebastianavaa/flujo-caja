@@ -4,19 +4,19 @@ import { useState } from "react";
 
 // ── PALETA ──────────────────────────────────────────────────────────────────
 const C = {
-  bg:       "#000000",
-  surface:  "#1c1c1e",
-  surface2: "#2c2c2e",
-  surface3: "#3a3a3c",
-  border:   "rgba(255,255,255,0.09)",
-  accent:   "#0A84FF",
-  text:     "#ffffff",
-  secondary:"rgba(255,255,255,0.55)",
-  muted:    "rgba(255,255,255,0.28)",
-  green:    "#30D158",
-  yellow:   "#FFD60A",
-  orange:   "#FF9F0A",
-  red:      "#FF453A",
+  bg:       "#09090b",
+  surface:  "#141416",
+  surface2: "#222226",
+  surface3: "#3a2a5c",
+  border:   "rgba(163,128,245,0.14)",
+  accent:   "#a380f5",
+  text:     "#f4f4f5",
+  secondary:"#8e8e93",
+  muted:    "rgba(142,142,147,0.5)",
+  green:    "#34d399",
+  yellow:   "#fbbf24",
+  orange:   "#fb923c",
+  red:      "#e24a4a",
 };
 
 // ── DATOS ────────────────────────────────────────────────────────────────────
