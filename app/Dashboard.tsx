@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CreditCard, BarChart2, Settings2, LogOut, Sun, Moon } from "lucide-react";
+import { CreditCard, BarChart2, Settings2, LogOut, Sun, Moon, Eye, EyeOff } from "lucide-react";
 import { logout } from "@/app/actions/auth";
 import { useSettings } from "@/app/hooks/useSettings";
 import CalculadoraTarjeta from "./CalculadoraTarjeta";
@@ -13,6 +13,7 @@ type Section = "tarjeta" | "forecast" | "settings";
 
 export default function Dashboard() {
   const [section, setSection] = useState<Section>("tarjeta");
+  const [hideAmounts, setHideAmounts] = useState(false);
   const { settings, update, loaded } = useSettings();
 
   if (!loaded) return null;
@@ -49,6 +50,13 @@ export default function Dashboard() {
           </div>
 
           <div className={styles.navRight}>
+            <button
+              className={`${styles.themeBtn} ${styles.eyeBtn}`}
+              onClick={() => setHideAmounts(h => !h)}
+              title={hideAmounts ? "Mostrar montos" : "Ocultar montos"}
+            >
+              {hideAmounts ? <EyeOff size={14} /> : <Eye size={14} />}
+            </button>
             <div className={styles.themeToggle}>
               <button
                 className={`${styles.themeBtn} ${settings.theme === "light" ? styles.themeBtnActive : ""}`}
@@ -86,18 +94,15 @@ export default function Dashboard() {
               onCuotasChange={(c) => update({ cuotas: c })}
               onCupoChange={(v) => update({ cupoDisponible: v })}
               onLimiteChange={(v) => update({ limiteMensual: v })}
+              hideAmounts={hideAmounts}
             />
           )}
           {section === "forecast" && (
             <div className={styles.forecastWrap}>
               <header className={styles.forecastHeader}>
-                <div className={styles.forecastTag}>Seba Nava · Plutto · 2026</div>
+                <div className={styles.forecastTag}>Seba Nava · 2026</div>
                 <h1 className={styles.forecastTitle}>Forecast personal</h1>
-                <div className={styles.forecastBadges}>
-                  <span className={styles.badgeRole}>Implementation Engineer</span>
-                  <span className={styles.badgeOk}>Aceptado</span>
-                </div>
-                <p className={styles.forecastSub}>Peñalolén · sin arriendo · 3x/sem Vitacura · ${(settings.liquidoMensual / 1000).toFixed(0)}k líquido</p>
+                <p className={styles.forecastSub}>Peñalolén · sin arriendo · 3x/sem Vitacura</p>
               </header>
               <ForecastAhorro
                 liquidoMensual={settings.liquidoMensual}
@@ -105,6 +110,7 @@ export default function Dashboard() {
                 caeDeuda={settings.caeDeuda}
                 onGastosChange={(k, v) => update({ gastosReales: { ...settings.gastosReales, [k]: v } })}
                 onCaeDeudaChange={(v) => update({ caeDeuda: v })}
+                hideAmounts={hideAmounts}
               />
             </div>
           )}

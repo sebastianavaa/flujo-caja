@@ -90,11 +90,16 @@ interface ForecastProps {
   liquidoMensual: number;
   gastosReales: Record<string, number>;
   caeDeuda: number;
+  hideAmounts: boolean;
   onGastosChange: (key: string, value: number) => void;
   onCaeDeudaChange: (v: number) => void;
 }
 
-export default function ForecastAhorro({ liquidoMensual, gastosReales, caeDeuda, onGastosChange, onCaeDeudaChange }: ForecastProps) {
+const HH = "••••";
+
+export default function ForecastAhorro({ liquidoMensual, gastosReales, caeDeuda, hideAmounts, onGastosChange, onCaeDeudaChange }: ForecastProps) {
+  const mf = (n: number) => hideAmounts ? HH : F(n);
+  const mk = (n: number) => hideAmounts ? HH : FK(n);
   const [sc, setSc]               = useState<Sc>("mid");
   const [tab, setTab]             = useState("resumen");
   const [realKey, setRealKey]     = useState(() => `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`);
@@ -189,22 +194,22 @@ export default function ForecastAhorro({ liquidoMensual, gastosReales, caeDeuda,
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 20 }}>
               <div>
                 <Label>Ingreso mensual</Label>
-                <div style={{ fontSize: 32, fontWeight: 300, letterSpacing: "-0.04em", color: C.text, fontVariantNumeric: "tabular-nums" }}>{F(liquidoMensual)}</div>
+                <div style={{ fontSize: 32, fontWeight: 300, letterSpacing: "-0.04em", color: C.text, fontVariantNumeric: "tabular-nums" }}>{mf(liquidoMensual)}</div>
                 <div style={{ fontSize: 12, color: C.muted, marginTop: 3 }}>AFP + isapre descontados</div>
               </div>
               <div style={{ textAlign: "right" }}>
                 <Label>Gasto mensual</Label>
-                <div style={{ fontSize: 32, fontWeight: 300, letterSpacing: "-0.04em", color: C.red, fontVariantNumeric: "tabular-nums" }}>-{F(gasto)}</div>
+                <div style={{ fontSize: 32, fontWeight: 300, letterSpacing: "-0.04em", color: C.red, fontVariantNumeric: "tabular-nums" }}>{hideAmounts ? HH : `-${F(gasto)}`}</div>
                 <div style={{ fontSize: 12, color: C.muted, marginTop: 3 }}>{100 - tasaPct}% del ingreso</div>
               </div>
             </div>
             <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 20 }}>
               <Label>Ahorro mensual</Label>
-              <div style={{ fontSize: 48, fontWeight: 300, letterSpacing: "-0.05em", color: ahorroM >= 0 ? C.green : C.red, fontVariantNumeric: "tabular-nums" }}>{F(ahorroM)}</div>
+              <div style={{ fontSize: 48, fontWeight: 300, letterSpacing: "-0.05em", color: ahorroM >= 0 ? C.green : C.red, fontVariantNumeric: "tabular-nums" }}>{mf(ahorroM)}</div>
               <Bar v={ahorroM} max={2_000_000} color={C.green} />
               <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
                 <span style={{ fontSize: 12, color: C.muted }}>{tasaPct}% del ingreso</span>
-                <span style={{ fontSize: 13, fontWeight: 600, color: C.green }}>{FK(ahorroM * 12)} al año</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: C.green }}>{mk(ahorroM * 12)} al año</span>
               </div>
             </div>
           </Card>
@@ -254,7 +259,7 @@ export default function ForecastAhorro({ liquidoMensual, gastosReales, caeDeuda,
 
           <Card>
             <Label>Supuestos</Label>
-            {["Carta de oferta Plutto · $2.650.000 líquido",
+            {["Ingreso mensual configurado en ajustes",
               "Almuerzo 3 días/sem en Vitacura + cenas + fds",
               "Uber nocturno ~9 viajes/mes × $15 USD",
               "AFP + isapre ya descontados · sin arriendo",

@@ -92,9 +92,13 @@ interface Props {
   onCuotasChange:   (c: Cuota[]) => void;
   onCupoChange:     (v: number) => void;
   onLimiteChange:   (v: number) => void;
+  hideAmounts:      boolean;
 }
 
-export default function CalculadoraTarjeta({ cupoTotal, limiteMensual, initialCuotas, initialCupo, onCuotasChange, onCupoChange, onLimiteChange }: Props) {
+const H = "••••";
+
+export default function CalculadoraTarjeta({ cupoTotal, limiteMensual, initialCuotas, initialCupo, onCuotasChange, onCupoChange, onLimiteChange, hideAmounts }: Props) {
+  const m = (n: number) => hideAmounts ? H : `$${fmt(n)}`;
   const [cuotas, setCuotasState] = useState<Cuota[]>(initialCuotas);
   const [nextId, setNextId] = useState(() => Math.max(0, ...initialCuotas.map(c => c.id)) + 1);
   const [cupoDisponible, setCupoDisponibleState] = useState(initialCupo);
@@ -225,10 +229,10 @@ export default function CalculadoraTarjeta({ cupoTotal, limiteMensual, initialCu
 
   // ¿Cuándo puedo comprar X?
   const xResult = (() => {
-    const m = parseInt(xMonto);
-    const c = parseInt(xCuotas);
-    if (!m || !c || c <= 0) return null;
-    const xFee = Math.round(m / c);
+    const xM = parseInt(xMonto);
+    const xC = parseInt(xCuotas);
+    if (!xM || !xC || xC <= 0) return null;
+    const xFee = Math.round(xM / xC);
     for (let i = 0; i < 36; i++) {
       const d = new Date(REF_YEAR, REF_MONTH - 1 + i, 1);
       const y = d.getFullYear();
@@ -272,7 +276,7 @@ export default function CalculadoraTarjeta({ cupoTotal, limiteMensual, initialCu
               />
             </div>
             <div className={styles.ibSub}>
-              {comprometido > 0 ? `$${fmt(comprometido)} en cuotas · ` : ""}${fmt(contado)} contado
+              {comprometido > 0 ? `${m(comprometido)} en cuotas · ` : ""}{hideAmounts ? H : `$${fmt(contado)}`} contado
             </div>
           </div>
           <div className={`${styles.inputBox} ${styles.limitBox}`}>
@@ -288,7 +292,7 @@ export default function CalculadoraTarjeta({ cupoTotal, limiteMensual, initialCu
               />
             </div>
             <div className={styles.ibSub}>
-              Margen libre = ${fmt(Math.max(0, limitInput - totalForMonth(cuotas, REF_YEAR, REF_MONTH)))}
+              Margen libre = {m(Math.max(0, limitInput - totalForMonth(cuotas, REF_YEAR, REF_MONTH)))}
             </div>
           </div>
         </div>
@@ -297,11 +301,11 @@ export default function CalculadoraTarjeta({ cupoTotal, limiteMensual, initialCu
         <div className={styles.cupoDetail}>
           <div className={styles.cdItem}>
             <div className={styles.cdL}>Cuotas comprometidas</div>
-            <div className={styles.cdV}>${fmt(comprometido)}</div>
+            <div className={styles.cdV}>{m(comprometido)}</div>
           </div>
           <div className={styles.cdItem}>
             <div className={styles.cdL}>Libre (contado)</div>
-            <div className={styles.cdV} style={{ color: "var(--green)" }}>{contado > 0 ? `$${fmt(contado)}` : "$0"}</div>
+            <div className={styles.cdV} style={{ color: "var(--green)" }}>{hideAmounts ? H : (contado > 0 ? `$${fmt(contado)}` : "$0")}</div>
           </div>
           <div className={styles.cdItem}>
             <div className={styles.cdL}>Meses con cuotas</div>
@@ -316,8 +320,7 @@ export default function CalculadoraTarjeta({ cupoTotal, limiteMensual, initialCu
             <span className={`${styles.statusChip} ${chipClass[st]}`}>{chipLabels[st]}</span>
           </div>
           <div className={styles.billingAmount}>
-            <span className={styles.currency}>$</span>
-            <span style={{ color: col }}>{fmt(totalMes)}</span>
+            {hideAmounts ? <span style={{ color: col, letterSpacing: 4 }}>••••</span> : <><span className={styles.currency}>$</span><span style={{ color: col }}>{fmt(totalMes)}</span></>}
           </div>
           <div className={styles.limitBarWrap}>
             <div className={styles.limitBarLabels}>
@@ -361,16 +364,16 @@ export default function CalculadoraTarjeta({ cupoTotal, limiteMensual, initialCu
           <div className={styles.billingSubRow}>
             <div className={styles.bsItem}>
               <div className={styles.bsL}>En cuotas</div>
-              <div className={styles.bsV}>${fmt(cuotasMes)}</div>
+              <div className={styles.bsV}>{m(cuotasMes)}</div>
             </div>
             <div className={styles.bsItem}>
               <div className={styles.bsL}>Contado</div>
-              <div className={styles.bsV}>{isRef ? `$${fmt(contadoMes)}` : "—"}</div>
+              <div className={styles.bsV}>{isRef ? m(contadoMes) : "—"}</div>
             </div>
             <div className={styles.bsItem}>
               <div className={styles.bsL}>Margen libre</div>
               <div className={styles.bsV} style={{ color: margen >= 0 ? "var(--green)" : "var(--red)" }}>
-                {margen >= 0 ? `$${fmt(margen)}` : `-$${fmt(-margen)}`}
+                {hideAmounts ? H : (margen >= 0 ? `$${fmt(margen)}` : `-$${fmt(-margen)}`)}
               </div>
             </div>
           </div>
@@ -394,7 +397,7 @@ export default function CalculadoraTarjeta({ cupoTotal, limiteMensual, initialCu
                 </div>
                 <div style={{ textAlign: "right" }}>
                   <div style={{ fontSize: 11, color: "var(--muted)" }}>libera</div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: "var(--green)" }}>+${fmt(freed)}/mes</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: "var(--green)" }}>+{m(freed)}/mes</div>
                 </div>
               </div>
             ))}
@@ -428,7 +431,7 @@ export default function CalculadoraTarjeta({ cupoTotal, limiteMensual, initialCu
                   onClick={() => { setViewYear(y); setViewMonth(m); }}
                 >
                   <div className={styles.tlMName}>{icon ? `${icon} ` : ""}{MONTHS_ES[m - 1].slice(0, 3)} {y}</div>
-                  <div className={styles.tlMAmount} style={{ color: col2 }}>${fmt(t)}</div>
+                  <div className={styles.tlMAmount} style={{ color: col2 }}>{hideAmounts ? H : `$${fmt(t)}`}</div>
                   <div className={styles.tlMBar}>
                     <div className={styles.tlMBarFill} style={{ width: `${pct2}%`, background: col2 }} />
                   </div>
@@ -494,10 +497,10 @@ export default function CalculadoraTarjeta({ cupoTotal, limiteMensual, initialCu
                   <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
                     <div className={styles.cuotaAmount}>
                       <div className={styles.cuotaFee} style={{ color: status === "active" ? c.color : "var(--muted)" }}>
-                        {status === "active" ? `$${fmt(f)}` : "—"}
+                        {status === "active" ? m(f) : "—"}
                       </div>
                       <div className={styles.cuotaNum}>
-                        {status !== "paid" ? `$${fmt(f)}/mes` : `Total: $${fmt(c.total)}`}
+                        {status !== "paid" ? `${m(f)}/mes` : `Total: ${m(c.total)}`}
                       </div>
                     </div>
                     <button className={styles.btnDelete} onClick={() => deleteCuota(c.id)}>✕</button>
