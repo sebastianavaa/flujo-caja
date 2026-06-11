@@ -66,6 +66,7 @@ export default function Dashboard() {
               initialCupo={settings.cupoDisponible}
               onCuotasChange={(c) => update({ cuotas: c })}
               onCupoChange={(v) => update({ cupoDisponible: v })}
+              onLimiteChange={(v) => update({ limiteMensual: v })}
             />
           )}
           {section === "forecast" && (

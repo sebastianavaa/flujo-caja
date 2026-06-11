@@ -85,26 +85,36 @@ const CUOTAS_INICIALES: Cuota[] = [
 ];
 
 interface Props {
-  cupoTotal:      number;
-  limiteMensual:  number;
-  initialCuotas:  Cuota[];
-  initialCupo:    number;
-  onCuotasChange: (c: Cuota[]) => void;
-  onCupoChange:   (v: number) => void;
+  cupoTotal:        number;
+  limiteMensual:    number;
+  initialCuotas:    Cuota[];
+  initialCupo:      number;
+  onCuotasChange:   (c: Cuota[]) => void;
+  onCupoChange:     (v: number) => void;
+  onLimiteChange:   (v: number) => void;
 }
 
-export default function CalculadoraTarjeta({ cupoTotal, limiteMensual, initialCuotas, initialCupo, onCuotasChange, onCupoChange }: Props) {
+export default function CalculadoraTarjeta({ cupoTotal, limiteMensual, initialCuotas, initialCupo, onCuotasChange, onCupoChange, onLimiteChange }: Props) {
   const [cuotas, setCuotasState] = useState<Cuota[]>(initialCuotas);
   const [nextId, setNextId] = useState(() => Math.max(0, ...initialCuotas.map(c => c.id)) + 1);
   const [cupoDisponible, setCupoDisponibleState] = useState(initialCupo);
-  const [limitInput, setLimitInput] = useState(limiteMensual);
+  const [limitInput, setLimitInputState] = useState(limiteMensual);
+  const [savedFlash, setSavedFlash] = useState(false);
 
   function setCuotas(fn: (prev: Cuota[]) => Cuota[]) {
-    setCuotasState(prev => { const next = fn(prev); onCuotasChange(next); return next; });
+    setCuotasState(prev => { const next = fn(prev); onCuotasChange(next); flash(); return next; });
   }
   function setCupoDisponible(v: number) {
     setCupoDisponibleState(v);
     onCupoChange(v);
+  }
+  function setLimitInput(v: number) {
+    setLimitInputState(v);
+    onLimiteChange(v);
+  }
+  function flash() {
+    setSavedFlash(true);
+    setTimeout(() => setSavedFlash(false), 2000);
   }
   const [viewYear, setViewYear] = useState(REF_YEAR);
   const [viewMonth, setViewMonth] = useState(REF_MONTH);
@@ -175,7 +185,12 @@ export default function CalculadoraTarjeta({ cupoTotal, limiteMensual, initialCu
       <div>
         {/* HEADER */}
         <header className={styles.header}>
-          <div className={styles.labelTag}>💳 Control financiero</div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div className={styles.labelTag}>Control financiero</div>
+            <div className={styles.savedBadge} style={{ opacity: savedFlash ? 1 : 0 }}>
+              Guardado ✓
+            </div>
+          </div>
           <h1 className={styles.h1}>Facturación<br /><span style={{ color: "var(--accent)" }}>Tarjeta</span></h1>
           <p className={styles.subtitle}>Ciclo de facturación: día 23 de cada mes</p>
         </header>

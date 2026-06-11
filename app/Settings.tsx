@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import { Moon, Sun } from "lucide-react";
 import { AppSettings } from "./hooks/useSettings";
 import styles from "./Settings.module.css";
@@ -43,10 +44,23 @@ function SettingRow({ label, sublabel, value, onChange, prefix = "$" }: SettingR
 }
 
 export default function Settings({ settings, onUpdate }: Props) {
+  const [savedFlash, setSavedFlash] = useState(false);
+
+  const update = useCallback((patch: Partial<AppSettings>) => {
+    onUpdate(patch);
+    setSavedFlash(true);
+    setTimeout(() => setSavedFlash(false), 2000);
+  }, [onUpdate]);
+
   const liquidoAnual = settings.liquidoMensual * 12;
 
   return (
     <div className={styles.wrap}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 28 }}>
+        <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--text)" }}>Configuración</div>
+        <div className={styles.savedBadge} style={{ opacity: savedFlash ? 1 : 0 }}>Guardado ✓</div>
+      </div>
+
       <div className={styles.section}>
         <div className={styles.sectionTitle}>Tarjeta de crédito</div>
         <div className={styles.card}>
@@ -54,13 +68,13 @@ export default function Settings({ settings, onUpdate }: Props) {
             label="Cupo total"
             sublabel="Límite de crédito de tu tarjeta"
             value={settings.cupoTotal}
-            onChange={(v) => onUpdate({ cupoTotal: v })}
+            onChange={(v) => update({ cupoTotal: v })}
           />
           <SettingRow
             label="Límite mensual deseado"
             sublabel="Alerta cuando el gasto mensual supera este monto"
             value={settings.limiteMensual}
-            onChange={(v) => onUpdate({ limiteMensual: v })}
+            onChange={(v) => update({ limiteMensual: v })}
           />
         </div>
       </div>
@@ -72,7 +86,7 @@ export default function Settings({ settings, onUpdate }: Props) {
             label="Ingreso mensual líquido"
             sublabel="Sueldo neto después de AFP e isapre"
             value={settings.liquidoMensual}
-            onChange={(v) => onUpdate({ liquidoMensual: v })}
+            onChange={(v) => update({ liquidoMensual: v })}
           />
         </div>
         <div className={styles.hint}>
@@ -91,13 +105,13 @@ export default function Settings({ settings, onUpdate }: Props) {
             <div className={styles.themeToggle}>
               <button
                 className={`${styles.themeBtn} ${settings.theme === "light" ? styles.themeBtnActive : ""}`}
-                onClick={() => onUpdate({ theme: "light" })}
+                onClick={() => update({ theme: "light" })}
               >
                 <Sun size={14} /> Claro
               </button>
               <button
                 className={`${styles.themeBtn} ${settings.theme === "dark" ? styles.themeBtnActive : ""}`}
-                onClick={() => onUpdate({ theme: "dark" })}
+                onClick={() => update({ theme: "dark" })}
               >
                 <Moon size={14} /> Oscuro
               </button>
