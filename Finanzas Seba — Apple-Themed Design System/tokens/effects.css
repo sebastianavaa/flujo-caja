@@ -1,0 +1,38 @@
+/* ============================================================
+   EFFECTS — shadows, blur, transitions, motion
+   Apple leans on soft, low-contrast elevation, hairline borders,
+   frosted-glass chrome, and quick ease-out transitions.
+   ============================================================ */
+
+:root {
+  /* ── Elevation (light-mode tuned; dark uses subtler) ── */
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.10);
+  --shadow-md:  0 4px 16px rgba(0,0,0,0.10);
+  --shadow-lg:  0 12px 40px rgba(0,0,0,0.16);
+  --shadow-pop: 0 8px 30px rgba(0,0,0,0.20);
+  /* Apple focus ring */
+  --ring-accent: 0 0 0 4px var(--accent-soft);
+
+  /* ── Frosted glass (sticky nav, overlays) ── */
+  --blur-glass: saturate(180%) blur(20px); /* @kind other */
+  --blur-soft:  blur(12px); /* @kind other */
+
+  /* ── Transitions (Apple's signature ease) ── */
+  --ease-apple:  cubic-bezier(0.4, 0, 0.2, 1); /* @kind other */
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1); /* @kind other */
+  --dur-fast:    0.15s; /* @kind other */
+  --dur-base:    0.25s; /* @kind other */
+  --dur-slow:    0.4s;  /* @kind other */
+  --transition-base: all var(--dur-fast) var(--ease-apple); /* @kind other */
+
+  /* ── Hover / press conventions ── */
+  /* Tinted surfaces brighten; solid accents drop opacity. */
+  --hover-opacity: 0.85; /* @kind other */
+  --press-opacity: 0.7; /* @kind other */
+  --press-scale:   0.97; /* @kind other */
+}
+
+/* Respect reduced motion globally for consumers */
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-fast: 0s; /* @kind other */ --dur-base: 0s; /* @kind other */ --dur-slow: 0s; /* @kind other */ }
+}

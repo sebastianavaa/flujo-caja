@@ -1,0 +1,24 @@
+<!-- @dsCard group="Type" viewport="700x160" name="Tabular numerals" subtitle="font-variant-numeric: tabular-nums for all money" -->
+<!DOCTYPE html>
+<html data-theme="dark">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-display); padding: 24px; font-variant-numeric: tabular-nums; }
+  .row { display: flex; gap: 40px; align-items: flex-end; }
+  .col .v { font-size: 30px; font-weight: 600; letter-spacing: -0.02em; }
+  .col .v .c { font-size: 0.5em; color: var(--secondary); vertical-align: super; font-weight: 400; }
+  .col .l { font-size: 11px; color: var(--muted); margin-top: 4px; font-family: var(--font-text); }
+  .g { color: var(--green); } .y { color: var(--yellow); } .r { color: var(--red); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="col"><div class="v"><span class="c">$</span>120.000</div><div class="l">contado</div></div>
+    <div class="col"><div class="v g"><span class="c">$</span>344.000</div><div class="l">margen libre</div></div>
+    <div class="col"><div class="v y"><span class="c">$</span>693.000</div><div class="l">límite</div></div>
+    <div class="col"><div class="v r">−<span class="c">$</span>58.000</div><div class="l">excede</div></div>
+  </div>
+</body>
+</html>

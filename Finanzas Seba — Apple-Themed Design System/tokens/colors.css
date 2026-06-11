@@ -1,0 +1,123 @@
+/* ============================================================
+   COLORS — apple.com themes, light + dark
+   Default :root = DARK (apple.com dark, #000 canvas).
+   [data-theme="light"] = apple.com light (#fff canvas).
+   Structure mirrors the Flujo de Caja product:
+     bg-main → page · bg-card → surface · bg-element → recessed
+   Accent is Apple web blue; semantics are iOS system colors.
+   ============================================================ */
+
+:root {
+  /* ── Apple neutral ramp (reference values) ── */
+  --apple-black:    #000000;
+  --apple-near-black:#1d1d1f;  /* Apple's signature near-black text */
+  --apple-gray-900: #161617;
+  --apple-gray-800: #1d1d1f;
+  --apple-gray-700: #2a2a2c;
+  --apple-gray-600: #424245;
+  --apple-gray-500: #6e6e73;   /* Apple secondary text (light) */
+  --apple-gray-400: #86868b;   /* THE Apple mid-gray (dark secondary) */
+  --apple-gray-300: #d2d2d7;   /* Apple hairline / divider (light) */
+  --apple-gray-200: #e8e8ed;
+  --apple-gray-100: #f5f5f7;   /* Apple light section gray */
+  --apple-white:    #ffffff;
+
+  /* ── Apple web blue ── */
+  --apple-blue:        #2997ff; /* dark-mode link/accent */
+  --apple-blue-light:  #0071e3; /* light-mode button blue */
+  --apple-blue-link:   #2997ff;
+
+  /* ── iOS system semantic colors ── */
+  --ios-green:  #30d158;
+  --ios-yellow: #ffd60a;
+  --ios-orange: #ff9f0a;
+  --ios-red:    #ff453a;
+
+  /* ===========================================================
+     DARK THEME (default — apple.com dark)
+     =========================================================== */
+  --bg-main:        #000000;
+  --bg-card:        #1d1d1f;
+  --bg-element:     #2a2a2c;
+  --bg-elevated:    #323236;
+
+  --text-primary:   #f5f5f7;
+  --text-secondary: #86868b;
+  --text-tertiary:  #6e6e73;
+
+  --accent:         #2997ff;
+  --accent-hover:   #47a3ff;
+  --accent-pressed: #0077ed;
+  --accent-soft:    rgba(41,151,255,0.14);  /* tinted fills */
+  --accent-soft-border: rgba(41,151,255,0.24);
+
+  --badge-bg:       rgba(41,151,255,0.16);
+  --badge-text:     #2997ff;
+
+  --green:  #30d158;
+  --yellow: #ffd60a;
+  --orange: #ff9f0a;
+  --red:    #ff453a;
+
+  --border:       rgba(255,255,255,0.10);
+  --border-strong:rgba(255,255,255,0.16);
+  --hairline:     rgba(255,255,255,0.08);
+  --muted:        rgba(134,134,139,0.85);
+
+  /* Glass / blurred chrome (apple.com sticky nav) */
+  --glass-bg:     rgba(0,0,0,0.72);
+  --glass-blur:   saturate(180%) blur(20px); /* @kind other */
+
+  /* ── Semantic surface aliases (used by components) ── */
+  --bg:        var(--bg-main);
+  --surface:   var(--bg-card);
+  --surface2:  var(--bg-element);
+  --surface3:  var(--bg-elevated);
+  --text:      var(--text-primary);
+  --secondary: var(--text-secondary);
+  --on-accent: #ffffff;
+}
+
+/* ===========================================================
+   LIGHT THEME (apple.com light)
+   =========================================================== */
+[data-theme="light"] {
+  --bg-main:        #f5f5f7;
+  --bg-card:        #ffffff;
+  --bg-element:     #f5f5f7;
+  --bg-elevated:    #ffffff;
+
+  --text-primary:   #1d1d1f;
+  --text-secondary: #6e6e73;
+  --text-tertiary:  #86868b;
+
+  --accent:         #0071e3;
+  --accent-hover:   #0077ed;
+  --accent-pressed: #006edb;
+  --accent-soft:    rgba(0,113,227,0.10);
+  --accent-soft-border: rgba(0,113,227,0.20);
+
+  --badge-bg:       rgba(0,113,227,0.10);
+  --badge-text:     #0071e3;
+
+  --green:  #248a3d;
+  --yellow: #b25e00;
+  --orange: #c93400;
+  --red:    #ff3b30;
+
+  --border:       rgba(0,0,0,0.10);
+  --border-strong:rgba(0,0,0,0.16);
+  --hairline:     rgba(0,0,0,0.07);
+  --muted:        rgba(110,110,115,0.75);
+
+  --glass-bg:     rgba(255,255,255,0.72);
+  --glass-blur:   saturate(180%) blur(20px); /* @kind other */
+
+  --bg:        var(--bg-main);
+  --surface:   var(--bg-card);
+  --surface2:  var(--bg-element);
+  --surface3:  var(--bg-elevated);
+  --text:      var(--text-primary);
+  --secondary: var(--text-secondary);
+  --on-accent: #ffffff;
+}

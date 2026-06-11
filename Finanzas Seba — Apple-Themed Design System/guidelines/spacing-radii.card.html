@@ -1,0 +1,27 @@
+<!-- @dsCard group="Spacing" viewport="700x170" name="Corner radii" subtitle="From chips (8) to modals (20) + pill" -->
+<!DOCTYPE html>
+<html data-theme="dark">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-text); padding: 24px; }
+  .row { display: flex; gap: 18px; align-items: flex-end; }
+  .col { text-align: center; }
+  .box { width: 72px; height: 56px; background: var(--surface); border: 1px solid var(--border); }
+  .l { font-size: 11px; font-weight: 600; margin-top: 8px; }
+  .n { font-size: 10px; color: var(--muted); margin-top: 1px; }
+  .pill { width: 90px; height: 32px; background: var(--accent-soft); border: 1px solid var(--accent-soft-border); border-radius: var(--radius-pill); display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 11px; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="col"><div class="box" style="border-radius:var(--radius-sm)"></div><div class="l">sm</div><div class="n">8px · fields</div></div>
+    <div class="col"><div class="box" style="border-radius:var(--radius-md)"></div><div class="l">md</div><div class="n">10px · buttons</div></div>
+    <div class="col"><div class="box" style="border-radius:var(--radius-lg)"></div><div class="l">lg</div><div class="n">12px · rows</div></div>
+    <div class="col"><div class="box" style="border-radius:var(--radius-xl)"></div><div class="l">xl</div><div class="n">16px · cards</div></div>
+    <div class="col"><div class="box" style="border-radius:var(--radius-2xl)"></div><div class="l">2xl</div><div class="n">20px · modals</div></div>
+    <div class="col"><div class="pill">pill</div><div class="n">99px · badges</div></div>
+  </div>
+</body>
+</html>

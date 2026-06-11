@@ -1,0 +1,60 @@
+<!-- @dsCard group="Components" viewport="700x180" name="Feedback — Badge · StatusChip · ProgressBar" subtitle="Status pills, traffic-light chips, progress tracks" -->
+<!DOCTYPE html>
+<html data-theme="dark">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-text); padding: 22px; }
+  .grp { margin-bottom: 14px; }
+  .lbl { font-size: 10px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; }
+  .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .prow { display: flex; flex-direction: column; gap: 6px; max-width: 340px; }
+  .pitem { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--secondary); }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="../../_ds_bundle.js"></script>
+  <script type="text/babel">
+    const { Badge, StatusChip, ProgressBar } = window.FinanzasSebaAppleThemedDesignSystem_4b1b5f;
+    function Demo() {
+      return (
+        <div>
+          <div className="grp">
+            <div className="lbl">Badge tones</div>
+            <div className="row">
+              <Badge tone="active">Activa</Badge>
+              <Badge tone="paid">Pagada</Badge>
+              <Badge tone="future">Futura</Badge>
+              <Badge tone="danger">Excede</Badge>
+              <Badge tone="role">Implementation Engineer</Badge>
+              <Badge tone="neutral">Sin cambios</Badge>
+            </div>
+          </div>
+          <div className="grp">
+            <div className="lbl">StatusChip</div>
+            <div className="row">
+              <StatusChip status="ok" />
+              <StatusChip status="warn" />
+              <StatusChip status="over" />
+            </div>
+          </div>
+          <div className="grp" style={{ marginBottom: 0 }}>
+            <div className="lbl">ProgressBar</div>
+            <div className="prow">
+              <div className="pitem"><ProgressBar value={60} max={100} tone="ok" style={{ flex: 1 }} height={4} showMarker /><span>60%</span></div>
+              <div className="pitem"><ProgressBar value={85} max={100} tone="warn" style={{ flex: 1 }} height={4} showMarker /><span>85%</span></div>
+              <div className="pitem"><ProgressBar value={112} max={100} tone="over" style={{ flex: 1 }} height={4} showMarker /><span>112%</span></div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById("root")).render(<Demo />);
+  </script>
+</body>
+</html>

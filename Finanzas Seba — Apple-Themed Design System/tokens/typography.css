@@ -1,0 +1,61 @@
+/* ============================================================
+   TYPOGRAPHY
+   Apple uses the San Francisco family (SF Pro Display / SF Pro
+   Text). It is proprietary and ships natively on Apple devices,
+   so we reference it through the system stack — real SF Pro is
+   rendered on macOS/iOS, with graceful fallbacks elsewhere.
+   No @font-face: the system serves the authentic font.
+   ============================================================ */
+
+:root {
+  /* ── Families ── */
+  /* Display: large titles, headlines (SF Pro Display on Apple devices) */
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+                  "Helvetica Neue", "Inter", system-ui, sans-serif;
+  /* Text: body, UI, labels (SF Pro Text on Apple devices) */
+  --font-text: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+               "Helvetica Neue", "Inter", system-ui, sans-serif;
+  /* Mono: tabular figures, code */
+  --font-mono: "SF Mono", ui-monospace, "SFMono-Regular", "Menlo",
+               "Consolas", monospace;
+
+  /* ── Weights (Apple's preferred set) ── */
+  --weight-regular: 400;
+  --weight-medium:  500;
+  --weight-semibold:600;
+  --weight-bold:    700;
+
+  /* ── Type scale ── */
+  --text-hero:    54px;  /* billing amount, big numbers */
+  --text-display: 40px;  /* page H1 */
+  --text-title:   32px;  /* section H1 */
+  --text-heading: 22px;  /* card / settings heading */
+  --text-xl:      28px;  /* large input figures */
+  --text-lg:      20px;  /* totals grand value */
+  --text-md:      15px;  /* body, values */
+  --text-base:    14px;  /* default UI text */
+  --text-sm:      13px;  /* secondary text */
+  --text-xs:      12px;  /* meta */
+  --text-2xs:     11px;  /* labels, eyebrows */
+  --text-3xs:     10px;  /* badges, micro */
+
+  /* ── Line heights ── */
+  --leading-tight: 1.05;
+  --leading-snug:  1.2;
+  --leading-normal:1.5;
+
+  /* ── Letter spacing (Apple tightens display type) ── */
+  --tracking-hero:    -0.04em;
+  --tracking-display: -0.03em;
+  --tracking-tight:   -0.02em;
+  --tracking-snug:    -0.01em;
+  --tracking-normal:  0;
+  --tracking-wide:    0.02em;
+  --tracking-eyebrow: 0.04em;  /* uppercase eyebrows / section titles */
+  --tracking-caps:    0.06em;
+
+  /* ── Semantic aliases ── */
+  --font-body: var(--font-text);
+  --font-headline: var(--font-display);
+  --numeric: tabular-nums; /* @kind other */
+}

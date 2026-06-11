@@ -9,15 +9,15 @@ export default async function LoginPage() {
   return (
     <div style={{
       minHeight: "100vh",
-      background: "#09090b",
+      background: "#000000",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      fontFamily: "-apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif",
+      fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
     }}>
       <div style={{
-        background: "#141416",
-        border: "1px solid rgba(163,128,245,0.14)",
+        background: "#1d1d1f",
+        border: "1px solid rgba(255,255,255,0.10)",
         borderRadius: 20,
         padding: "40px 36px",
         width: "100%",
@@ -25,17 +25,17 @@ export default async function LoginPage() {
         textAlign: "center",
       }}>
         <div style={{ fontSize: 36, marginBottom: 16 }}>💳</div>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: "#f4f4f5", marginBottom: 6, letterSpacing: "-0.03em" }}>
+        <h1 style={{ fontSize: 22, fontWeight: 700, color: "#f5f5f7", marginBottom: 6, letterSpacing: "-0.03em" }}>
           Flujo de Caja
         </h1>
-        <p style={{ fontSize: 13, color: "rgba(244,244,245,0.45)", marginBottom: 32 }}>
+        <p style={{ fontSize: 13, color: "rgba(245,245,247,0.45)", marginBottom: 32 }}>
           Dashboard financiero personal
         </p>
 
         <form action={loginWithGoogle}>
           <button type="submit" style={{
             width: "100%",
-            background: "#a380f5",
+            background: "#2997ff",
             color: "#fff",
             border: "none",
             borderRadius: 12,
@@ -49,13 +49,14 @@ export default async function LoginPage() {
             justifyContent: "center",
             gap: 10,
             letterSpacing: "-0.01em",
+            transition: "opacity 0.15s cubic-bezier(0.4,0,0.2,1)",
           }}>
             <GoogleIcon />
             Continuar con Google
           </button>
         </form>
 
-        <p style={{ fontSize: 11, color: "rgba(244,244,245,0.2)", marginTop: 24 }}>
+        <p style={{ fontSize: 11, color: "rgba(245,245,247,0.2)", marginTop: 24 }}>
           Acceso restringido · solo uso personal
         </p>
       </div>

@@ -1,0 +1,24 @@
+<!-- @dsCard group="Colors" viewport="700x176" name="Surfaces — Dark" subtitle="apple.com dark canvas → card → element → elevated" -->
+<!DOCTYPE html>
+<html data-theme="dark">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-text); padding: 22px; }
+  .row { display: flex; gap: 14px; }
+  .sw { flex: 1; }
+  .chip { height: 60px; border-radius: var(--radius-md); border: 1px solid var(--border); }
+  .name { font-size: 12px; font-weight: 600; margin-top: 8px; letter-spacing: -0.01em; }
+  .hex { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; margin-top: 2px; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="sw"><div class="chip" style="background:var(--bg-main)"></div><div class="name">bg-main</div><div class="hex">#000000</div></div>
+    <div class="sw"><div class="chip" style="background:var(--bg-card)"></div><div class="name">bg-card</div><div class="hex">#1d1d1f</div></div>
+    <div class="sw"><div class="chip" style="background:var(--bg-element)"></div><div class="name">bg-element</div><div class="hex">#2a2a2c</div></div>
+    <div class="sw"><div class="chip" style="background:var(--bg-elevated)"></div><div class="name">bg-elevated</div><div class="hex">#323236</div></div>
+  </div>
+</body>
+</html>

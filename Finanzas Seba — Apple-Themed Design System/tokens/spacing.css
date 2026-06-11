@@ -1,0 +1,45 @@
+/* ============================================================
+   SPACING, RADII & LAYOUT
+   8px-based rhythm with the small half-steps Apple UIs use for
+   dense data cards. Radii follow Apple's soft-rounded surfaces.
+   ============================================================ */
+
+:root {
+  /* ── Spacing scale ── */
+  --space-1:  2px;
+  --space-2:  4px;
+  --space-3:  6px;
+  --space-4:  8px;
+  --space-5:  10px;
+  --space-6:  12px;
+  --space-7:  14px;
+  --space-8:  16px;
+  --space-10: 20px;
+  --space-11: 22px;
+  --space-12: 24px;
+  --space-14: 28px;
+  --space-16: 32px;
+  --space-18: 36px;
+  --space-20: 40px;
+
+  /* ── Border radii ── */
+  --radius-xs:  6px;   /* small buttons, toggles */
+  --radius-sm:  8px;   /* form fields, chips */
+  --radius-md:  10px;  /* primary buttons */
+  --radius-lg:  12px;  /* list cards, cuota rows */
+  --radius-xl:  16px;  /* primary cards, hero */
+  --radius-2xl: 20px;  /* modals, login card */
+  --radius-pill:99px;  /* badges, status chips */
+  --radius-full:50%;   /* dots, avatars */
+
+  /* ── Layout ── */
+  --container-narrow: 700px;  /* app content column */
+  --container-wide:   980px;  /* apple.com marketing width */
+  --nav-height:       56px;
+  --hairline-width:   1px;
+
+  /* ── Semantic aliases ── */
+  --gap-card:    24px;
+  --pad-card:    24px;
+  --pad-card-sm: 16px;
+}

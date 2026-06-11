@@ -1,0 +1,29 @@
+<!-- @dsCard group="Colors" viewport="700x150" name="Text & Hairlines" subtitle="Primary / secondary / tertiary text + borders" -->
+<!DOCTYPE html>
+<html data-theme="dark">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin: 0; background: var(--bg); font-family: var(--font-text); padding: 22px; }
+  .grid { display: flex; gap: 28px; align-items: center; }
+  .stack > div { margin-bottom: 6px; }
+  .p { color: var(--text-primary); font-size: 17px; font-weight: 600; letter-spacing: -0.02em; }
+  .s { color: var(--text-secondary); font-size: 14px; }
+  .t { color: var(--text-tertiary); font-size: 13px; }
+  .lbl { font-size: 10px; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; margin-top: 10px; }
+  .border-demo { width: 180px; height: 78px; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--secondary); font-size: 12px; }
+</style>
+</head>
+<body>
+  <div class="grid">
+    <div class="stack">
+      <div class="p">Facturación Tarjeta</div>
+      <div class="s">Ciclo de facturación: día 23</div>
+      <div class="t">en 6 meses</div>
+      <div class="lbl">text · primary / secondary / tertiary</div>
+    </div>
+    <div class="border-demo">1px var(--border)</div>
+  </div>
+</body>
+</html>

@@ -31,8 +31,8 @@
   font-weight: 600;
   font-family: inherit;
   color: var(--accent);
-  background: rgba(163,128,245,0.1);
-  border: 1px solid rgba(163,128,245,0.2);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-soft-border);
   padding: 5px 14px;
   border-radius: 99px;
   cursor: pointer;
@@ -41,7 +41,7 @@
 }
 
 .saveBtn:hover {
-  background: rgba(163,128,245,0.18);
+  background: var(--accent-soft);
 }
 
 .saveBtnDone {

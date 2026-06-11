@@ -1,0 +1,8 @@
+/* ============================================================
+   Finanzas Seba — Apple-Themed Design System
+   Global stylesheet entry point. @import lines only.
+   ============================================================ */
+@import "./tokens/typography.css";
+@import "./tokens/colors.css";
+@import "./tokens/spacing.css";
+@import "./tokens/effects.css";
