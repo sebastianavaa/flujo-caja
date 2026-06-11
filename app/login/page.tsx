@@ -35,7 +35,7 @@ export default async function LoginPage() {
         <form action={loginWithGoogle}>
           <button type="submit" style={{
             width: "100%",
-            background: "#2997ff",
+            background: "#bf5af2",
             color: "#fff",
             border: "none",
             borderRadius: 12,

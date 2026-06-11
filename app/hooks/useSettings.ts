@@ -24,7 +24,7 @@ export interface AppSettings {
 }
 
 const CUOTAS_DEFAULT: StoredCuota[] = [
-  { id: 1, name: "iPhone For Life", total: 1_617_000, numCuotas: 36, startMonth: 6, startYear: 2026, color: "#2997ff" },
+  { id: 1, name: "iPhone For Life", total: 1_617_000, numCuotas: 36, startMonth: 6, startYear: 2026, color: "#bf5af2" },
   { id: 2, name: "Osojimix",        total:   120_000, numCuotas:  3, startMonth: 6, startYear: 2026, color: "#30d158" },
 ];
 

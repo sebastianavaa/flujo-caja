@@ -11,7 +11,7 @@ const MONTHS_ES = [
 const REF_YEAR = 2026;
 const REF_MONTH = 6;
 
-const COLORS = ["#2997ff","#30d158","#ffd60a","#ff9f0a","#ff453a","#64d2ff","#bf5af2"];
+const COLORS = ["#bf5af2","#30d158","#ffd60a","#ff9f0a","#ff453a","#64d2ff","#2997ff"];
 
 interface Cuota {
   id: number;

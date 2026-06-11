@@ -16,15 +16,15 @@
   --text-secondary: #86868b;
   --text-tertiary:  #6e6e73;
 
-  /* ── Apple web blue ── */
-  --accent:         #2997ff;
-  --accent-hover:   #47a3ff;
-  --accent-pressed: #0077ed;
-  --accent-soft:    rgba(41,151,255,0.14);
-  --accent-soft-border: rgba(41,151,255,0.24);
+  /* ── iOS violet ── */
+  --accent:         #bf5af2;
+  --accent-hover:   #cc6ff5;
+  --accent-pressed: #a93fe0;
+  --accent-soft:    rgba(191,90,242,0.14);
+  --accent-soft-border: rgba(191,90,242,0.24);
 
-  --badge-bg:   rgba(41,151,255,0.16);
-  --badge-text: #2997ff;
+  --badge-bg:   rgba(191,90,242,0.16);
+  --badge-text: #bf5af2;
 
   /* ── iOS semantic colors ── */
   --green:  #30d158;
@@ -73,14 +73,14 @@
   --text-secondary: #6e6e73;
   --text-tertiary:  #86868b;
 
-  --accent:         #0071e3;
-  --accent-hover:   #0077ed;
-  --accent-pressed: #006edb;
-  --accent-soft:    rgba(0,113,227,0.10);
-  --accent-soft-border: rgba(0,113,227,0.20);
+  --accent:         #8944ab;
+  --accent-hover:   #9b59b6;
+  --accent-pressed: #7d3d9c;
+  --accent-soft:    rgba(137,68,171,0.10);
+  --accent-soft-border: rgba(137,68,171,0.20);
 
-  --badge-bg:   rgba(0,113,227,0.10);
-  --badge-text: #0071e3;
+  --badge-bg:   rgba(137,68,171,0.10);
+  --badge-text: #8944ab;
 
   --green:  #248a3d;
   --yellow: #b25e00;
