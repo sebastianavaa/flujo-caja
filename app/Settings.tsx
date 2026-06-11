@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Moon, Sun } from "lucide-react";
 import { AppSettings } from "./hooks/useSettings";
 import styles from "./Settings.module.css";
 
@@ -91,32 +90,6 @@ export default function Settings({ settings, onUpdate }: Props) {
         </div>
         <div className={styles.hint}>
           Ingreso anual proyectado: <strong>${fmt(liquidoAnual)}</strong>
-        </div>
-      </div>
-
-      <div className={styles.section}>
-        <div className={styles.sectionTitle}>Apariencia</div>
-        <div className={styles.card}>
-          <div className={styles.row}>
-            <div className={styles.rowInfo}>
-              <div className={styles.rowLabel}>Tema</div>
-              <div className={styles.rowSub}>Claro u oscuro</div>
-            </div>
-            <div className={styles.themeToggle}>
-              <button
-                className={`${styles.themeBtn} ${settings.theme === "light" ? styles.themeBtnActive : ""}`}
-                onClick={() => update({ theme: "light" })}
-              >
-                <Sun size={14} /> Claro
-              </button>
-              <button
-                className={`${styles.themeBtn} ${settings.theme === "dark" ? styles.themeBtnActive : ""}`}
-                onClick={() => update({ theme: "dark" })}
-              >
-                <Moon size={14} /> Oscuro
-              </button>
-            </div>
-          </div>
         </div>
       </div>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CreditCard, BarChart2, Settings2, LogOut } from "lucide-react";
+import { CreditCard, BarChart2, Settings2, LogOut, Sun, Moon } from "lucide-react";
 import { logout } from "@/app/actions/auth";
 import { useSettings } from "@/app/hooks/useSettings";
 import CalculadoraTarjeta from "./CalculadoraTarjeta";
@@ -19,9 +19,8 @@ export default function Dashboard() {
 
   return (
     <div className={styles.root}>
-      <div className={styles.wrap}>
-
-        {/* TOP NAV */}
+      {/* TOP NAV — sticky */}
+      <div className={styles.navOuter}>
         <nav className={styles.nav}>
           <div className={styles.navBrand}>
             <span className={styles.brandDot} />
@@ -49,13 +48,33 @@ export default function Dashboard() {
             </button>
           </div>
 
-          <form action={logout}>
-            <button type="submit" className={styles.logoutBtn} title="Cerrar sesión">
-              <LogOut size={15} />
-            </button>
-          </form>
+          <div className={styles.navRight}>
+            <div className={styles.themeToggle}>
+              <button
+                className={`${styles.themeBtn} ${settings.theme === "light" ? styles.themeBtnActive : ""}`}
+                onClick={() => update({ theme: "light" })}
+                title="Tema claro"
+              >
+                <Sun size={14} />
+              </button>
+              <button
+                className={`${styles.themeBtn} ${settings.theme === "dark" ? styles.themeBtnActive : ""}`}
+                onClick={() => update({ theme: "dark" })}
+                title="Tema oscuro"
+              >
+                <Moon size={14} />
+              </button>
+            </div>
+            <form action={logout}>
+              <button type="submit" className={styles.logoutBtn} title="Cerrar sesión">
+                <LogOut size={15} />
+              </button>
+            </form>
+          </div>
         </nav>
+      </div>
 
+      <div className={styles.wrap}>
         {/* CONTENT */}
         <main className={styles.content}>
           {section === "tarjeta" && (
