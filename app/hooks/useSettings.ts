@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export interface StoredCuota {
   id: number;
@@ -35,38 +35,81 @@ const DEFAULTS: AppSettings = {
   cupoDisponible: 0,
 };
 
-const KEY = "flujo-caja-settings";
+const LS_KEY = "flujo-caja-settings";
+
+function applyTheme(theme: "dark" | "light") {
+  document.documentElement.setAttribute("data-theme", theme);
+}
+
+async function fetchFromRedis(): Promise<AppSettings | null> {
+  try {
+    const res = await fetch("/api/settings");
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+async function saveToRedis(data: AppSettings) {
+  try {
+    await fetch("/api/settings", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+  } catch {}
+}
 
 export function useSettings() {
   const [settings, setSettings] = useState<AppSettings>(DEFAULTS);
   const [loaded, setLoaded] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(KEY);
-      if (raw) {
-        const saved = { ...DEFAULTS, ...JSON.parse(raw) };
-        setSettings(saved);
-        applyTheme(saved.theme);
-      } else {
-        applyTheme(DEFAULTS.theme);
+    async function load() {
+      // 1. Show localStorage immediately (no flicker)
+      let initial = DEFAULTS;
+      try {
+        const raw = localStorage.getItem(LS_KEY);
+        if (raw) {
+          initial = { ...DEFAULTS, ...JSON.parse(raw) };
+          setSettings(initial);
+          applyTheme(initial.theme);
+        } else {
+          applyTheme(DEFAULTS.theme);
+        }
+      } catch {}
+
+      // 2. Hydrate from Redis (source of truth)
+      const remote = await fetchFromRedis();
+      if (remote) {
+        const merged = { ...DEFAULTS, ...remote };
+        setSettings(merged);
+        applyTheme(merged.theme);
+        localStorage.setItem(LS_KEY, JSON.stringify(merged));
       }
-    } catch {}
-    setLoaded(true);
+
+      setLoaded(true);
+    }
+    load();
   }, []);
 
   function update(patch: Partial<AppSettings>) {
     setSettings((prev) => {
       const next = { ...prev, ...patch };
-      localStorage.setItem(KEY, JSON.stringify(next));
+
+      // Guardar en localStorage de inmediato
+      localStorage.setItem(LS_KEY, JSON.stringify(next));
       if (patch.theme) applyTheme(patch.theme);
+
+      // Debounce para Redis: espera 800ms sin cambios antes de escribir
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => saveToRedis(next), 800);
+
       return next;
     });
   }
-
-function applyTheme(theme: "dark" | "light") {
-  document.documentElement.setAttribute("data-theme", theme);
-}
 
   return { settings, update, loaded };
 }
