@@ -611,4 +611,5 @@
   .formRow,
   .formRowThree     { grid-template-columns: 1fr; }
   .cupoDetail       { grid-template-columns: 1fr 1fr; }
+  .cupoDetail .cdItem:last-child:nth-child(odd) { grid-column: 1 / -1; }
 }
