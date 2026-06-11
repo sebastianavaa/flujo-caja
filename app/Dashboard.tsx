@@ -62,6 +62,10 @@ export default function Dashboard() {
             <CalculadoraTarjeta
               cupoTotal={settings.cupoTotal}
               limiteMensual={settings.limiteMensual}
+              initialCuotas={settings.cuotas}
+              initialCupo={settings.cupoDisponible}
+              onCuotasChange={(c) => update({ cuotas: c })}
+              onCupoChange={(v) => update({ cupoDisponible: v })}
             />
           )}
           {section === "forecast" && (

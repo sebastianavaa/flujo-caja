@@ -2,18 +2,37 @@
 
 import { useState, useEffect } from "react";
 
+export interface StoredCuota {
+  id: number;
+  name: string;
+  total: number;
+  numCuotas: number;
+  startMonth: number;
+  startYear: number;
+  color: string;
+}
+
 export interface AppSettings {
   cupoTotal:      number;
   limiteMensual:  number;
   liquidoMensual: number;
   theme:          "dark" | "light";
+  cuotas:         StoredCuota[];
+  cupoDisponible: number;
 }
+
+const CUOTAS_DEFAULT: StoredCuota[] = [
+  { id: 1, name: "iPhone For Life", total: 1_617_000, numCuotas: 36, startMonth: 6, startYear: 2026, color: "#a380f5" },
+  { id: 2, name: "Osojimix",        total:   120_000, numCuotas:  3, startMonth: 6, startYear: 2026, color: "#f472b6" },
+];
 
 const DEFAULTS: AppSettings = {
   cupoTotal:      4_000_000,
   limiteMensual:    850_000,
   liquidoMensual: 2_650_000,
   theme:          "dark",
+  cuotas:         CUOTAS_DEFAULT,
+  cupoDisponible: 0,
 };
 
 const KEY = "flujo-caja-settings";

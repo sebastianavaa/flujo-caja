@@ -75,7 +75,7 @@
   transition: background 0.15s;
 }
 
-.input:focus { background: #2a2a2e; }
+.input:focus { background: var(--surface2); filter: brightness(1.06); }
 
 .hint {
   font-size: 12px;

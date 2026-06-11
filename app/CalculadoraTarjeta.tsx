@@ -85,15 +85,27 @@ const CUOTAS_INICIALES: Cuota[] = [
 ];
 
 interface Props {
-  cupoTotal:     number;
-  limiteMensual: number;
+  cupoTotal:      number;
+  limiteMensual:  number;
+  initialCuotas:  Cuota[];
+  initialCupo:    number;
+  onCuotasChange: (c: Cuota[]) => void;
+  onCupoChange:   (v: number) => void;
 }
 
-export default function CalculadoraTarjeta({ cupoTotal, limiteMensual }: Props) {
-  const [cuotas, setCuotas] = useState<Cuota[]>(CUOTAS_INICIALES);
-  const [nextId, setNextId] = useState(3);
-  const [cupoDisponible, setCupoDisponible] = useState(0);
+export default function CalculadoraTarjeta({ cupoTotal, limiteMensual, initialCuotas, initialCupo, onCuotasChange, onCupoChange }: Props) {
+  const [cuotas, setCuotasState] = useState<Cuota[]>(initialCuotas);
+  const [nextId, setNextId] = useState(() => Math.max(0, ...initialCuotas.map(c => c.id)) + 1);
+  const [cupoDisponible, setCupoDisponibleState] = useState(initialCupo);
   const [limitInput, setLimitInput] = useState(limiteMensual);
+
+  function setCuotas(fn: (prev: Cuota[]) => Cuota[]) {
+    setCuotasState(prev => { const next = fn(prev); onCuotasChange(next); return next; });
+  }
+  function setCupoDisponible(v: number) {
+    setCupoDisponibleState(v);
+    onCupoChange(v);
+  }
   const [viewYear, setViewYear] = useState(REF_YEAR);
   const [viewMonth, setViewMonth] = useState(REF_MONTH);
 

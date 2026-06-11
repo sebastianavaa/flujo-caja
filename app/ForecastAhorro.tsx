@@ -4,19 +4,19 @@ import { useState } from "react";
 
 // ── PALETA ──────────────────────────────────────────────────────────────────
 const C = {
-  bg:       "#09090b",
-  surface:  "#141416",
-  surface2: "#222226",
-  surface3: "#3a2a5c",
-  border:   "rgba(163,128,245,0.14)",
-  accent:   "#a380f5",
-  text:     "#f4f4f5",
-  secondary:"#8e8e93",
-  muted:    "rgba(142,142,147,0.5)",
-  green:    "#34d399",
-  yellow:   "#fbbf24",
-  orange:   "#fb923c",
-  red:      "#e24a4a",
+  bg:       "var(--bg)",
+  surface:  "var(--surface)",
+  surface2: "var(--surface2)",
+  surface3: "var(--badge-bg)",
+  border:   "var(--border)",
+  accent:   "var(--accent)",
+  text:     "var(--text)",
+  secondary:"var(--secondary)",
+  muted:    "var(--muted)",
+  green:    "var(--green)",
+  yellow:   "var(--yellow)",
+  orange:   "var(--orange)",
+  red:      "var(--red)",
 };
 
 // ── DATOS ────────────────────────────────────────────────────────────────────
@@ -25,7 +25,6 @@ const UF_HOY  = 40_290.47;
 const IPC     = 0.035;
 const EDAD    = 28;
 
-let LIQUIDO     = 2_650_000; // overridden by prop
 const CAE         = 110_000;
 const TELEFONO    =  15_000;
 const IPHONE      =  50 * USD_CLP;
@@ -40,8 +39,8 @@ type Sc = "low" | "mid" | "high";
 const ALIM:  Record<Sc, number> = { low: 100_000, mid: 150_000, high: 200_000 };
 const OTROS: Record<Sc, number> = { low: 120_000, mid: 180_000, high: 260_000 };
 
-function gastoTotal(sc: Sc) { return ALIM[sc] + MICRO + UBER + TOTAL_FIJOS + OTROS[sc]; }
-function ahorroMes(sc: Sc)  { return LIQUIDO - gastoTotal(sc); }
+function gastoTotal(liquido: number, sc: Sc) { return ALIM[sc] + MICRO + UBER + TOTAL_FIJOS + OTROS[sc]; }
+function ahorroMes(liquido: number, sc: Sc)  { return liquido - gastoTotal(liquido, sc); }
 
 function crec(a: number): number { return a <= 6 ? 0.05 : a <= 16 ? 0.03 : 0.015; }
 function proySueldo(base: number, n: number): number[] {
@@ -86,8 +85,6 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 const PLAZOS = [12, 18, 24, 30, 36, 48];
 
 export default function ForecastAhorro({ liquidoMensual }: { liquidoMensual: number }) {
-  LIQUIDO = liquidoMensual;
-
   const [sc, setSc]               = useState<Sc>("mid");
   const [tab, setTab]             = useState("resumen");
   const [precioUF, setPrecioUF]   = useState(5_250);
@@ -95,9 +92,9 @@ export default function ForecastAhorro({ liquidoMensual }: { liquidoMensual: num
   const [tasa, setTasa]           = useState(4.25);
   const [ahorroAct, setAhorroAct] = useState(18_000_000);
 
-  const gasto   = gastoTotal(sc);
-  const ahorroM = ahorroMes(sc);
-  const tasaPct = Math.round(ahorroM / LIQUIDO * 100);
+  const gasto   = gastoTotal(liquidoMensual, sc);
+  const ahorroM = ahorroMes(liquidoMensual, sc);
+  const tasaPct = Math.round(ahorroM / liquidoMensual * 100);
 
   const precioCLP = Math.round(precioUF * UF_HOY);
   const pieNec    = Math.round(precioCLP * pie / 100);
@@ -118,10 +115,10 @@ export default function ForecastAhorro({ liquidoMensual }: { liquidoMensual: num
   };
 
   const pat = (() => {
-    const sueldos = proySueldo(LIQUIDO, 60);
+    const sueldos = proySueldo(liquidoMensual, 60);
     let acc = ahorroAct;
     return sueldos.map((s, i) => {
-      const a = Math.max(0, s - gastoTotal("mid") * Math.pow(1 + IPC, i / 12));
+      const a = Math.max(0, s - gastoTotal(liquidoMensual, "mid") * Math.pow(1 + IPC, i / 12));
       acc += a;
       return Math.round(acc);
     });
@@ -181,7 +178,7 @@ export default function ForecastAhorro({ liquidoMensual }: { liquidoMensual: num
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 20 }}>
               <div>
                 <Label>Ingreso mensual</Label>
-                <div style={{ fontSize: 32, fontWeight: 300, letterSpacing: "-0.04em", color: C.text, fontVariantNumeric: "tabular-nums" }}>{F(LIQUIDO)}</div>
+                <div style={{ fontSize: 32, fontWeight: 300, letterSpacing: "-0.04em", color: C.text, fontVariantNumeric: "tabular-nums" }}>{F(liquidoMensual)}</div>
                 <div style={{ fontSize: 12, color: C.muted, marginTop: 3 }}>AFP + isapre descontados</div>
               </div>
               <div style={{ textAlign: "right" }}>
@@ -262,7 +259,7 @@ export default function ForecastAhorro({ liquidoMensual }: { liquidoMensual: num
               { label: "Micro", v: MICRO, color: C.secondary },
               { label: "Ocio + otros", v: OTROS[sc], color: "#a3e635" },
             ].map((r, i) => {
-              const p = Math.round(r.v / LIQUIDO * 100);
+              const p = Math.round(r.v / liquidoMensual * 100);
               return (
                 <div key={i} style={{ marginBottom: 12 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
@@ -492,9 +489,9 @@ export default function ForecastAhorro({ liquidoMensual }: { liquidoMensual: num
           <Card>
             <SectionTitle>Sueldo proyectado</SectionTitle>
             {[0,1,2,3,4].map(año => {
-              const s   = proySueldo(LIQUIDO, (año + 1) * 12).slice(-1)[0];
+              const s   = proySueldo(liquidoMensual, (año + 1) * 12).slice(-1)[0];
               const pct = Math.min(100, Math.round(s / 4_500_000 * 100));
-              const inc = Math.round((s - LIQUIDO) / LIQUIDO * 100);
+              const inc = Math.round((s - liquidoMensual) / liquidoMensual * 100);
               return (
                 <div key={año} style={{ marginBottom: 12 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
@@ -517,7 +514,7 @@ export default function ForecastAhorro({ liquidoMensual }: { liquidoMensual: num
               { label: "Pie necesario (20%)", v: F(Math.round(5250 * UF_HOY * 0.2)), color: C.text },
               { label: "Tienes hoy", v: F(18_000_000), color: C.green },
               { label: "Falta", v: F(Math.max(0, Math.round(5250 * UF_HOY * 0.2) - 18_000_000)), color: C.yellow },
-              { label: "Meses ahorrando (escenario normal)", v: `~${Math.ceil(Math.max(0, Math.round(5250 * UF_HOY * 0.2) - 18_000_000) / ahorroMes("mid"))} meses`, color: C.accent },
+              { label: "Meses ahorrando (escenario normal)", v: `~${Math.ceil(Math.max(0, Math.round(5250 * UF_HOY * 0.2) - 18_000_000) / ahorroMes(liquidoMensual, "mid"))} meses`, color: C.accent },
             ].map((r, i) => (
               <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: i < 3 ? `1px solid ${C.border}` : "none" }}>
                 <span style={{ fontSize: 13, color: C.secondary }}>{r.label}</span>

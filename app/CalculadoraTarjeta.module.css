@@ -552,7 +552,7 @@
   transition: background 0.15s;
 }
 
-.formField:focus { background: #3a3a3c; }
+.formField:focus { background: var(--surface2); filter: brightness(1.08); }
 .formField::placeholder { color: var(--muted); }
 
 .btnAdd {
