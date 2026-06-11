@@ -99,7 +99,13 @@ export default function Dashboard() {
                 </div>
                 <p className={styles.forecastSub}>Peñalolén · sin arriendo · 3x/sem Vitacura · ${(settings.liquidoMensual / 1000).toFixed(0)}k líquido</p>
               </header>
-              <ForecastAhorro liquidoMensual={settings.liquidoMensual} />
+              <ForecastAhorro
+                liquidoMensual={settings.liquidoMensual}
+                gastosReales={settings.gastosReales}
+                caeDeuda={settings.caeDeuda}
+                onGastosChange={(k, v) => update({ gastosReales: { ...settings.gastosReales, [k]: v } })}
+                onCaeDeudaChange={(v) => update({ caeDeuda: v })}
+              />
             </div>
           )}
           {section === "settings" && (

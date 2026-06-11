@@ -126,6 +126,12 @@ export default function CalculadoraTarjeta({ cupoTotal, limiteMensual, initialCu
   const [fMes, setFMes] = useState("");
   const [fAnio, setFAnio] = useState("");
 
+  // Simulador / ¿cuándo puedo comprar X?
+  const [simMonto, setSimMonto] = useState("");
+  const [simCuotas, setSimCuotas] = useState("");
+  const [xMonto, setXMonto] = useState("");
+  const [xCuotas, setXCuotas] = useState("");
+
   // Usuario ingresa cupo disponible; utilizado se deriva internamente
   const cupoUtilizado = Math.max(0, cupoTotal - cupoDisponible);
 
@@ -179,6 +185,59 @@ export default function CalculadoraTarjeta({ cupoTotal, limiteMensual, initialCu
   }, [fName, fTotal, fCuotas, fMes, fAnio, nextId]);
 
   const activasN = cuotas.filter((c) => statusFor(c, viewYear, viewMonth).status === "active").length;
+
+  // Próximo cierre (día 23)
+  const today = new Date();
+  const nextClose = today.getDate() <= 23
+    ? new Date(today.getFullYear(), today.getMonth(), 23)
+    : new Date(today.getFullYear(), today.getMonth() + 1, 23);
+  const daysUntilClose = Math.max(0, Math.ceil((nextClose.getTime() - today.getTime()) / 86400000));
+  const dailyBudget = margen > 0 && daysUntilClose > 0 ? Math.floor(margen / daysUntilClose) : 0;
+
+  // Fecha deuda cero
+  const deudaCero = (() => {
+    const nonPaid = cuotas.filter(c => statusFor(c, REF_YEAR, REF_MONTH).status !== "paid");
+    if (nonPaid.length === 0) return null;
+    let maxIdx = 0;
+    nonPaid.forEach(c => {
+      const idx = c.startYear * 12 + (c.startMonth - 1) + c.numCuotas - 1;
+      if (idx > maxIdx) maxIdx = idx;
+    });
+    const year = Math.floor(maxIdx / 12);
+    const month = maxIdx % 12 + 1;
+    return { year, month, meses: maxIdx - (REF_YEAR * 12 + REF_MONTH - 1) };
+  })();
+
+  // Cuotas que terminan pronto (≤3 meses)
+  const alertasLibera = cuotas
+    .map(c => {
+      const { status, remaining } = statusFor(c, REF_YEAR, REF_MONTH);
+      return status === "active" && remaining <= 3 ? { c, remaining, freed: fee(c) } : null;
+    })
+    .filter((x): x is { c: Cuota; remaining: number; freed: number } => x !== null)
+    .sort((a, b) => a.remaining - b.remaining);
+
+  // Simulador cuotas
+  const simFee = simMonto && simCuotas && parseInt(simCuotas) > 0
+    ? Math.round(parseInt(simMonto) / parseInt(simCuotas)) : 0;
+  const simNuevoMargen = simFee > 0 ? margen - simFee : null;
+  const simSt = simFee > 0 ? getStatus(totalMes + simFee, limitInput) : null;
+
+  // ¿Cuándo puedo comprar X?
+  const xResult = (() => {
+    const m = parseInt(xMonto);
+    const c = parseInt(xCuotas);
+    if (!m || !c || c <= 0) return null;
+    const xFee = Math.round(m / c);
+    for (let i = 0; i < 36; i++) {
+      const d = new Date(REF_YEAR, REF_MONTH - 1 + i, 1);
+      const y = d.getFullYear();
+      const mo = d.getMonth() + 1;
+      const t = totalForMonth(cuotas, y, mo) + xFee + (i === 0 ? contado : 0);
+      if (t <= limitInput) return { year: y, month: mo, mesesEspera: i, fee: xFee };
+    }
+    return null;
+  })();
 
   return (
     <div>
@@ -277,6 +336,28 @@ export default function CalculadoraTarjeta({ cupoTotal, limiteMensual, initialCu
             <span className={styles.dot} />
             <span>Facturación el 23 de {MONTHS_ES[billingM - 1].toLowerCase()} {billingY}</span>
           </div>
+
+          {/* Countdown cierre */}
+          <div style={{ display: "flex", gap: 20, marginTop: 14, paddingTop: 14, borderTop: "1px solid var(--border)", flexWrap: "wrap" }}>
+            <div>
+              <div style={{ fontSize: 11, color: "var(--muted)", marginBottom: 2 }}>Cierre en</div>
+              <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", color: daysUntilClose <= 5 ? "var(--yellow)" : "var(--text)" }}>{daysUntilClose} días</div>
+            </div>
+            {dailyBudget > 0 && (
+              <div>
+                <div style={{ fontSize: 11, color: "var(--muted)", marginBottom: 2 }}>Presupuesto diario libre</div>
+                <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--green)" }}>${fmt(dailyBudget)}<span style={{ fontSize: 12, fontWeight: 400, color: "var(--muted)" }}>/día</span></div>
+              </div>
+            )}
+            {deudaCero && (
+              <div style={{ marginLeft: "auto", textAlign: "right" }}>
+                <div style={{ fontSize: 11, color: "var(--muted)", marginBottom: 2 }}>Deuda 0</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: "var(--accent)" }}>{MONTHS_ES[deudaCero.month - 1].slice(0, 3)} {deudaCero.year}</div>
+                <div style={{ fontSize: 11, color: "var(--muted)" }}>en {deudaCero.meses} meses</div>
+              </div>
+            )}
+          </div>
+
           <div className={styles.billingSubRow}>
             <div className={styles.bsItem}>
               <div className={styles.bsL}>En cuotas</div>
@@ -294,6 +375,31 @@ export default function CalculadoraTarjeta({ cupoTotal, limiteMensual, initialCu
             </div>
           </div>
         </div>
+
+        {/* ALERTAS — cuotas que terminan pronto */}
+        {alertasLibera.length > 0 && (
+          <div style={{ marginBottom: 24 }}>
+            <div className={styles.sectionTitle}>Se libera pronto</div>
+            {alertasLibera.map(({ c, remaining, freed }) => (
+              <div key={c.id} style={{
+                background: "var(--surface)", borderRadius: 12, padding: "12px 16px",
+                marginBottom: 6, display: "flex", justifyContent: "space-between", alignItems: "center",
+                border: "1px solid rgba(52,211,153,0.18)",
+              }}>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text)" }}>{c.name}</div>
+                  <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>
+                    {remaining === 1 ? "Última cuota este mes" : `Termina en ${remaining} meses`}
+                  </div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontSize: 11, color: "var(--muted)" }}>libera</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: "var(--green)" }}>+${fmt(freed)}/mes</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* TIMELINE */}
         <div className={styles.sectionTitle}>Proyección 12 meses</div>
@@ -459,6 +565,77 @@ export default function CalculadoraTarjeta({ cupoTotal, limiteMensual, initialCu
             </div>
           </div>
           <button className={styles.btnAdd} onClick={addCuota}>+ Agregar compra</button>
+        </div>
+
+        {/* SIMULADOR ¿ME CONVIENE EN CUOTAS? */}
+        <div className={styles.addSection} style={{ marginTop: 16 }}>
+          <div className={styles.sectionTitle} style={{ marginBottom: 16 }}>¿Me conviene en cuotas?</div>
+          <div className={styles.formRow}>
+            <div>
+              <label className={styles.formLabel}>Monto total ($)</label>
+              <input className={styles.formField} type="number" value={simMonto} onChange={e => setSimMonto(e.target.value)} placeholder="Ej: 300000" />
+            </div>
+            <div>
+              <label className={styles.formLabel}>N° cuotas</label>
+              <input className={styles.formField} type="number" value={simCuotas} onChange={e => setSimCuotas(e.target.value)} placeholder="Ej: 6" min="1" />
+            </div>
+          </div>
+          {simFee > 0 && (
+            <div style={{ marginTop: 4, background: "var(--surface2)", borderRadius: 10, padding: "14px 16px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                <span style={{ fontSize: 13, color: "var(--secondary)" }}>Cuota mensual</span>
+                <span style={{ fontSize: 18, fontWeight: 700, color: "var(--accent)", fontVariantNumeric: "tabular-nums" }}>${fmt(simFee)}/mes</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+                <span style={{ fontSize: 13, color: "var(--secondary)" }}>Nuevo margen libre</span>
+                <span style={{ fontSize: 15, fontWeight: 600, fontVariantNumeric: "tabular-nums", color: simNuevoMargen !== null && simNuevoMargen >= 0 ? "var(--green)" : "var(--red)" }}>
+                  {simNuevoMargen !== null ? (simNuevoMargen >= 0 ? `$${fmt(simNuevoMargen)}` : `-$${fmt(-simNuevoMargen)}`) : "—"}
+                </span>
+              </div>
+              {simSt === "ok"   && <span style={{ fontSize: 12, fontWeight: 600, color: "var(--green)",  background: "rgba(52,211,153,0.12)",  padding: "3px 10px", borderRadius: 99 }}>✓ Dentro del límite</span>}
+              {simSt === "warn" && <span style={{ fontSize: 12, fontWeight: 600, color: "var(--yellow)", background: "rgba(251,191,36,0.12)",  padding: "3px 10px", borderRadius: 99 }}>⚠ Cerca del límite</span>}
+              {simSt === "over" && <span style={{ fontSize: 12, fontWeight: 600, color: "var(--red)",    background: "rgba(226,74,74,0.12)",   padding: "3px 10px", borderRadius: 99 }}>✕ Excede el límite</span>}
+            </div>
+          )}
+        </div>
+
+        {/* ¿CUÁNDO PUEDO COMPRAR X? */}
+        <div className={styles.addSection} style={{ marginTop: 16 }}>
+          <div className={styles.sectionTitle} style={{ marginBottom: 16 }}>¿Cuándo puedo comprarlo?</div>
+          <div className={styles.formRow}>
+            <div>
+              <label className={styles.formLabel}>Precio ($)</label>
+              <input className={styles.formField} type="number" value={xMonto} onChange={e => setXMonto(e.target.value)} placeholder="Ej: 500000" />
+            </div>
+            <div>
+              <label className={styles.formLabel}>En cuántas cuotas</label>
+              <input className={styles.formField} type="number" value={xCuotas} onChange={e => setXCuotas(e.target.value)} placeholder="Ej: 12" min="1" />
+            </div>
+          </div>
+          {xResult && (
+            <div style={{ marginTop: 4, background: "var(--surface2)", borderRadius: 10, padding: "14px 16px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                <span style={{ fontSize: 13, color: "var(--secondary)" }}>Cuota mensual</span>
+                <span style={{ fontSize: 15, fontWeight: 600, color: "var(--accent)", fontVariantNumeric: "tabular-nums" }}>${fmt(xResult.fee)}/mes</span>
+              </div>
+              {xResult.mesesEspera === 0
+                ? <div style={{ fontSize: 14, fontWeight: 600, color: "var(--green)" }}>¡Podés comprarlo este mes!</div>
+                : (
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text)" }}>
+                      Podés comprarlo en <span style={{ color: "var(--accent)" }}>{MONTHS_ES[xResult.month - 1]} {xResult.year}</span>
+                    </div>
+                    <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 4 }}>En {xResult.mesesEspera} mes{xResult.mesesEspera !== 1 ? "es" : ""} se libera suficiente margen</div>
+                  </div>
+                )
+              }
+            </div>
+          )}
+          {xMonto && xCuotas && !xResult && (
+            <div style={{ marginTop: 4, background: "rgba(226,74,74,0.08)", borderRadius: 10, padding: "14px 16px" }}>
+              <div style={{ fontSize: 13, color: "var(--red)" }}>No hay margen suficiente en los próximos 3 años con el presupuesto actual.</div>
+            </div>
+          )}
         </div>
       </div>
     </div>

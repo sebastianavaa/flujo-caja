@@ -84,9 +84,20 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 const PLAZOS = [12, 18, 24, 30, 36, 48];
 
-export default function ForecastAhorro({ liquidoMensual }: { liquidoMensual: number }) {
+const MONTHS_ES_F = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+
+interface ForecastProps {
+  liquidoMensual: number;
+  gastosReales: Record<string, number>;
+  caeDeuda: number;
+  onGastosChange: (key: string, value: number) => void;
+  onCaeDeudaChange: (v: number) => void;
+}
+
+export default function ForecastAhorro({ liquidoMensual, gastosReales, caeDeuda, onGastosChange, onCaeDeudaChange }: ForecastProps) {
   const [sc, setSc]               = useState<Sc>("mid");
   const [tab, setTab]             = useState("resumen");
+  const [realKey, setRealKey]     = useState(() => `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`);
   const [precioUF, setPrecioUF]   = useState(5_250);
   const [pie, setPie]             = useState(20);
   const [tasa, setTasa]           = useState(4.25);
@@ -158,10 +169,10 @@ export default function ForecastAhorro({ liquidoMensual }: { liquidoMensual: num
 
       {/* Sub-tabs */}
       <div style={{ display: "flex", gap: 2, background: C.surface, borderRadius: 10, padding: 3, marginBottom: 28 }}>
-        {[["resumen","Resumen"],["gastos","Gastos"],["depto","Depto"],["patrimonio","Patrimonio"]].map(([k,l]) => (
+        {[["resumen","Resumen"],["gastos","Gastos"],["real","Real"],["depto","Depto"],["patrimonio","Patrimonio"]].map(([k,l]) => (
           <button key={k} onClick={() => setTab(k)} style={{
             flex: 1, padding: "7px 0", borderRadius: 8, border: "none", cursor: "pointer",
-            fontFamily: "inherit", fontSize: 13, fontWeight: 500,
+            fontFamily: "inherit", fontSize: 12, fontWeight: 500,
             background: tab === k ? C.surface2 : "transparent",
             color: tab === k ? C.text : C.secondary,
             transition: "all .15s",
@@ -282,6 +293,44 @@ export default function ForecastAhorro({ liquidoMensual }: { liquidoMensual: num
             </div>
           </Card>
 
+          {/* CAE TRACKER */}
+          <Card>
+            <SectionTitle>CAE Tracker</SectionTitle>
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                <span style={{ fontSize: 13, color: C.secondary }}>Deuda restante</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: caeDeuda > 0 ? C.yellow : C.green }}>{caeDeuda > 0 ? `$${Math.round(caeDeuda / 1000)}k` : "¡Pagado!"}</span>
+              </div>
+              <input type="range" min={0} max={10000000} step={100000} value={caeDeuda} onChange={e => onCaeDeudaChange(+e.target.value)} style={{ width: "100%", accentColor: C.yellow }} />
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: C.muted, marginTop: 3 }}>
+                <span>$0</span><span>$2.5M</span><span>$5M</span><span>$7.5M</span><span>$10M</span>
+              </div>
+            </div>
+            {caeDeuda > 0 && (() => {
+              const cuotaCAE = CAE;
+              const mesesRestantes = Math.ceil(caeDeuda / cuotaCAE);
+              const d = new Date(new Date().getFullYear(), new Date().getMonth() + mesesRestantes, 1);
+              const ahorroLibera = cuotaCAE;
+              const totalPagar = mesesRestantes * cuotaCAE;
+              return (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                  {[
+                    { l: "Cuota mensual", v: `$${Math.round(cuotaCAE/1000)}k`, c: C.yellow },
+                    { l: "Meses restantes", v: `${mesesRestantes} meses`, c: C.text },
+                    { l: "Termina en", v: `${MONTHS_ES_F[d.getMonth()].slice(0,3)} ${d.getFullYear()}`, c: C.accent },
+                    { l: "Total restante a pagar", v: `$${Math.round(totalPagar/1000)}k`, c: C.secondary },
+                  ].map((r, i) => (
+                    <div key={i} style={{ background: C.surface2, borderRadius: 10, padding: "10px 12px" }}>
+                      <div style={{ fontSize: 11, color: C.muted, marginBottom: 3 }}>{r.l}</div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: r.c }}>{r.v}</div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
+            {caeDeuda === 0 && <div style={{ fontSize: 14, color: C.green, fontWeight: 600 }}>CAE pagado — liberaste ${Math.round(CAE/1000)}k/mes</div>}
+          </Card>
+
           <Card>
             <SectionTitle>Distribución</SectionTitle>
             {[
@@ -308,6 +357,128 @@ export default function ForecastAhorro({ liquidoMensual }: { liquidoMensual: num
           </Card>
         </div>
       )}
+
+      {/* ── REAL ── */}
+      {tab === "real" && (() => {
+        const recentMonths = Array.from({ length: 6 }, (_, i) => {
+          const d = new Date(new Date().getFullYear(), new Date().getMonth() - i, 1);
+          const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+          return { key, label: `${MONTHS_ES_F[d.getMonth()].slice(0, 3)} ${d.getFullYear()}` };
+        });
+        const realVal = gastosReales[realKey] ?? 0;
+        const selectedMonth = recentMonths.find(m => m.key === realKey);
+        const ahorroReal = realVal > 0 ? liquidoMensual - realVal : null;
+
+        return (
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <Card>
+              <div style={{ fontSize: 11, fontWeight: 600, color: C.muted, letterSpacing: "0.06em", textTransform: "uppercase" as const, marginBottom: 12 }}>Seleccionar mes</div>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                {recentMonths.map(m => (
+                  <button key={m.key} onClick={() => setRealKey(m.key)} style={{
+                    padding: "6px 14px", borderRadius: 99, border: "none", cursor: "pointer",
+                    fontFamily: "inherit", fontSize: 12, fontWeight: 500,
+                    background: realKey === m.key ? C.accent : C.surface2,
+                    color: realKey === m.key ? "#fff" : C.secondary,
+                    transition: "all .15s",
+                  }}>{m.label}</button>
+                ))}
+              </div>
+            </Card>
+
+            <Card>
+              <div style={{ fontSize: 11, fontWeight: 600, color: C.muted, letterSpacing: "0.06em", textTransform: "uppercase" as const, marginBottom: 12 }}>
+                Gasto real · {selectedMonth?.label}
+              </div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 8 }}>
+                <span style={{ fontSize: 20, color: C.muted }}>$</span>
+                <input
+                  type="number"
+                  value={realVal || ""}
+                  placeholder="0"
+                  onChange={e => onGastosChange(realKey, parseInt(e.target.value) || 0)}
+                  style={{
+                    flex: 1, background: C.surface2, border: "none", borderRadius: 8,
+                    color: C.text, fontFamily: "inherit", fontSize: 22, fontWeight: 600,
+                    padding: "10px 12px", outline: "none", fontVariantNumeric: "tabular-nums",
+                  }}
+                />
+              </div>
+              {ahorroReal !== null && (
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
+                  <span style={{ fontSize: 13, color: C.secondary }}>Ahorro real</span>
+                  <span style={{ fontSize: 15, fontWeight: 700, color: ahorroReal >= 0 ? C.green : C.red, fontVariantNumeric: "tabular-nums" }}>
+                    {ahorroReal >= 0 ? `$${(ahorroReal/1000).toFixed(0)}k` : `-$${(Math.abs(ahorroReal)/1000).toFixed(0)}k`}
+                  </span>
+                </div>
+              )}
+            </Card>
+
+            {realVal > 0 && (
+              <Card>
+                <div style={{ fontSize: 11, fontWeight: 600, color: C.muted, letterSpacing: "0.06em", textTransform: "uppercase" as const, marginBottom: 12 }}>
+                  Real vs Forecast
+                </div>
+                {(["low","mid","high"] as Sc[]).map(s => {
+                  const fcast = gastoTotal(liquidoMensual, s);
+                  const diff = realVal - fcast;
+                  const pct = Math.round((realVal / fcast) * 100);
+                  const color = diff <= 0 ? C.green : diff <= fcast * 0.1 ? C.yellow : C.red;
+                  return (
+                    <div key={s} style={{ marginBottom: 14 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                        <span style={{ fontSize: 13, color: { low: C.green, mid: C.yellow, high: C.red }[s] }}>
+                          {{ low: "Austero", mid: "Normal", high: "Holgado" }[s]}
+                          <span style={{ fontSize: 11, color: C.muted, marginLeft: 8 }}>${(fcast/1000).toFixed(0)}k estimado</span>
+                        </span>
+                        <span style={{ fontSize: 13, fontWeight: 600, color }}>
+                          {diff <= 0 ? `${Math.abs(diff/1000).toFixed(0)}k bajo` : `${(diff/1000).toFixed(0)}k sobre`}
+                        </span>
+                      </div>
+                      <div style={{ height: 4, background: C.surface2, borderRadius: 99, overflow: "hidden" }}>
+                        <div style={{ height: "100%", width: `${Math.min(pct, 100)}%`, background: color, borderRadius: 99 }} />
+                      </div>
+                      <div style={{ fontSize: 11, color: C.muted, marginTop: 3 }}>{pct}% del forecast</div>
+                    </div>
+                  );
+                })}
+                {ahorroReal !== null && (
+                  <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 12, marginTop: 4, display: "flex", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: 13, color: C.secondary }}>Ahorro real este mes</span>
+                    <span style={{ fontSize: 16, fontWeight: 700, color: ahorroReal >= 0 ? C.green : C.red, fontVariantNumeric: "tabular-nums" }}>
+                      {new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 }).format(ahorroReal)}
+                    </span>
+                  </div>
+                )}
+              </Card>
+            )}
+
+            {Object.keys(gastosReales).length > 0 && (
+              <Card>
+                <SectionTitle>Historial</SectionTitle>
+                {Object.entries(gastosReales)
+                  .sort(([a], [b]) => b.localeCompare(a))
+                  .slice(0, 6)
+                  .map(([k, v]) => {
+                    const [y, m] = k.split("-");
+                    const ahorro = liquidoMensual - v;
+                    return (
+                      <div key={k} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: `1px solid ${C.border}` }}>
+                        <span style={{ fontSize: 13, color: C.secondary }}>{MONTHS_ES_F[parseInt(m) - 1].slice(0,3)} {y}</span>
+                        <div style={{ textAlign: "right" }}>
+                          <div style={{ fontSize: 14, fontWeight: 600, color: C.text, fontVariantNumeric: "tabular-nums" }}>${(v/1000).toFixed(0)}k gastado</div>
+                          <div style={{ fontSize: 11, color: ahorro >= 0 ? C.green : C.red }}>
+                            {ahorro >= 0 ? `+$${(ahorro/1000).toFixed(0)}k ahorrado` : `-$${(Math.abs(ahorro)/1000).toFixed(0)}k déficit`}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </Card>
+            )}
+          </div>
+        );
+      })()}
 
       {/* ── DEPTO ── */}
       {tab === "depto" && (

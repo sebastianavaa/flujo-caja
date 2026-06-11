@@ -19,6 +19,8 @@ export interface AppSettings {
   theme:          "dark" | "light";
   cuotas:         StoredCuota[];
   cupoDisponible: number;
+  gastosReales:   Record<string, number>; // "YYYY-MM" → gasto real total
+  caeDeuda:       number;                 // deuda CAE restante
 }
 
 const CUOTAS_DEFAULT: StoredCuota[] = [
@@ -33,6 +35,8 @@ const DEFAULTS: AppSettings = {
   theme:          "dark",
   cuotas:         CUOTAS_DEFAULT,
   cupoDisponible: 0,
+  gastosReales:   {},
+  caeDeuda:       0,
 };
 
 const LS_KEY = "flujo-caja-settings";
