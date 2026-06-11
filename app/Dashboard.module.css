@@ -5,23 +5,25 @@
 }
 
 .wrap {
-  max-width: 680px;
+  max-width: 700px;
   margin: 0 auto;
   padding: 0 20px 100px;
 }
 
-/* NAV */
+/* ── TOP NAV ── */
 .nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 18px 0 28px;
+  gap: 12px;
 }
 
 .navBrand {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .brandDot {
@@ -68,15 +70,33 @@
   color: var(--text);
 }
 
-/* CONTENT */
+.logoutBtn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.logoutBtn:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+/* ── CONTENT ── */
 .content { min-height: 60vh; }
 
-/* FORECAST WRAPPER */
+/* ── FORECAST WRAPPER ── */
 .forecastWrap { padding-top: 4px; }
 
-.forecastHeader {
-  margin-bottom: 28px;
-}
+.forecastHeader { margin-bottom: 28px; }
 
 .forecastTag {
   font-size: 11px;
@@ -103,8 +123,8 @@
 }
 
 .badgeRole {
-  background: rgba(10,132,255,.12);
-  color: var(--accent);
+  background: var(--badge-bg);
+  color: var(--badge-text);
   border-radius: 99px;
   padding: 3px 12px;
   font-size: 11px;
@@ -112,7 +132,7 @@
 }
 
 .badgeOk {
-  background: rgba(48,209,88,.12);
+  background: rgba(52,211,153,.12);
   color: var(--green);
   border-radius: 99px;
   padding: 3px 12px;
@@ -124,4 +144,65 @@
   color: var(--muted);
   font-size: 12px;
   font-weight: 400;
+}
+
+/* ── BOTTOM TAB BAR (solo mobile) ── */
+.bottomNav {
+  display: none;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 640px) {
+  .wrap {
+    padding: 0 16px 88px;
+  }
+
+  /* Ocultar tabs del top nav en mobile */
+  .navTabs { display: none; }
+
+  /* Ocultar logout del top nav en mobile (está en el bottom bar) */
+  .logoutBtn { display: none; }
+
+  .nav {
+    padding: 14px 0 20px;
+  }
+
+  /* Bottom tab bar visible en mobile */
+  .bottomNav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border);
+    padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+    z-index: 100;
+  }
+
+  .bottomTab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--muted);
+    padding: 4px 0;
+    transition: color 0.15s;
+    letter-spacing: 0.01em;
+  }
+
+  .bottomTabActive {
+    color: var(--accent);
+  }
+
+  .forecastTitle {
+    font-size: 26px;
+  }
 }

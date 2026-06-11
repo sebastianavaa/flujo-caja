@@ -25,7 +25,7 @@ const UF_HOY  = 40_290.47;
 const IPC     = 0.035;
 const EDAD    = 28;
 
-const LIQUIDO     = 2_650_000;
+let LIQUIDO     = 2_650_000; // overridden by prop
 const CAE         = 110_000;
 const TELEFONO    =  15_000;
 const IPHONE      =  50 * USD_CLP;
@@ -85,7 +85,9 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 const PLAZOS = [12, 18, 24, 30, 36, 48];
 
-export default function ForecastAhorro() {
+export default function ForecastAhorro({ liquidoMensual }: { liquidoMensual: number }) {
+  LIQUIDO = liquidoMensual;
+
   const [sc, setSc]               = useState<Sc>("mid");
   const [tab, setTab]             = useState("resumen");
   const [precioUF, setPrecioUF]   = useState(5_250);

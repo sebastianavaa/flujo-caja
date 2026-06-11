@@ -1,61 +1,119 @@
 "use client";
 
 import { useState } from "react";
+import { CreditCard, BarChart2, Settings2, LogOut } from "lucide-react";
+import { logout } from "@/app/actions/auth";
+import { useSettings } from "@/app/hooks/useSettings";
 import CalculadoraTarjeta from "./CalculadoraTarjeta";
 import ForecastAhorro from "./ForecastAhorro";
+import Settings from "./Settings";
 import styles from "./Dashboard.module.css";
 
-type Section = "tarjeta" | "forecast";
+type Section = "tarjeta" | "forecast" | "settings";
 
 export default function Dashboard() {
   const [section, setSection] = useState<Section>("tarjeta");
+  const { settings, update, loaded } = useSettings();
+
+  if (!loaded) return null;
 
   return (
     <div className={styles.root}>
-      <div className={styles.noise} />
-
       <div className={styles.wrap}>
+
         {/* TOP NAV */}
         <nav className={styles.nav}>
           <div className={styles.navBrand}>
             <span className={styles.brandDot} />
             <span className={styles.brandName}>Finanzas Seba</span>
           </div>
+
           <div className={styles.navTabs}>
             <button
               className={`${styles.navTab} ${section === "tarjeta" ? styles.navTabActive : ""}`}
               onClick={() => setSection("tarjeta")}
             >
-              💳 Tarjeta
+              Tarjeta
             </button>
             <button
               className={`${styles.navTab} ${section === "forecast" ? styles.navTabActive : ""}`}
               onClick={() => setSection("forecast")}
             >
-              📊 Forecast
+              Forecast
+            </button>
+            <button
+              className={`${styles.navTab} ${section === "settings" ? styles.navTabActive : ""}`}
+              onClick={() => setSection("settings")}
+            >
+              Config
             </button>
           </div>
+
+          <form action={logout}>
+            <button type="submit" className={styles.logoutBtn} title="Cerrar sesión">
+              <LogOut size={15} />
+            </button>
+          </form>
         </nav>
 
         {/* CONTENT */}
         <main className={styles.content}>
-          {section === "tarjeta" && <CalculadoraTarjeta />}
+          {section === "tarjeta" && (
+            <CalculadoraTarjeta
+              cupoTotal={settings.cupoTotal}
+              limiteMensual={settings.limiteMensual}
+            />
+          )}
           {section === "forecast" && (
             <div className={styles.forecastWrap}>
               <header className={styles.forecastHeader}>
-                <div className={styles.forecastTag}>Seba Nava · Plutto · Mayo 2026</div>
+                <div className={styles.forecastTag}>Seba Nava · Plutto · 2026</div>
                 <h1 className={styles.forecastTitle}>Forecast personal</h1>
                 <div className={styles.forecastBadges}>
                   <span className={styles.badgeRole}>Implementation Engineer</span>
-                  <span className={styles.badgeOk}>✓ ACEPTADO</span>
+                  <span className={styles.badgeOk}>Aceptado</span>
                 </div>
-                <p className={styles.forecastSub}>Peñalolén · sin arriendo · 3x/sem Vitacura · $2.650.000 líquido</p>
+                <p className={styles.forecastSub}>Peñalolén · sin arriendo · 3x/sem Vitacura · ${(settings.liquidoMensual / 1000).toFixed(0)}k líquido</p>
               </header>
-              <ForecastAhorro />
+              <ForecastAhorro liquidoMensual={settings.liquidoMensual} />
             </div>
+          )}
+          {section === "settings" && (
+            <Settings settings={settings} onUpdate={update} />
           )}
         </main>
       </div>
+
+      {/* BOTTOM TAB BAR — solo mobile */}
+      <nav className={styles.bottomNav}>
+        <button
+          className={`${styles.bottomTab} ${section === "tarjeta" ? styles.bottomTabActive : ""}`}
+          onClick={() => setSection("tarjeta")}
+        >
+          <CreditCard size={20} strokeWidth={section === "tarjeta" ? 2.5 : 1.8} />
+          <span>Tarjeta</span>
+        </button>
+        <button
+          className={`${styles.bottomTab} ${section === "forecast" ? styles.bottomTabActive : ""}`}
+          onClick={() => setSection("forecast")}
+        >
+          <BarChart2 size={20} strokeWidth={section === "forecast" ? 2.5 : 1.8} />
+          <span>Forecast</span>
+        </button>
+        <button
+          className={`${styles.bottomTab} ${section === "settings" ? styles.bottomTabActive : ""}`}
+          onClick={() => setSection("settings")}
+        >
+          <Settings2 size={20} strokeWidth={section === "settings" ? 2.5 : 1.8} />
+          <span>Config</span>
+        </button>
+        <form action={logout} style={{ display: "contents" }}>
+          <button type="submit" className={styles.bottomTab}>
+            <LogOut size={20} strokeWidth={1.8} />
+            <span>Salir</span>
+          </button>
+        </form>
+      </nav>
     </div>
   );
 }

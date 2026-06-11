@@ -10,7 +10,6 @@ const MONTHS_ES = [
 
 const REF_YEAR = 2026;
 const REF_MONTH = 6;
-const CUPO_TOTAL = 4_000_000;
 
 const COLORS = ["#6c63ff","#ff6584","#4ade80","#fbbf24","#06b6d4","#f472b6","#a78bfa"];
 
@@ -85,11 +84,16 @@ const CUOTAS_INICIALES: Cuota[] = [
   { id: 2, name: "Osojimix",        total:   120_000, numCuotas:  3, startMonth: 6, startYear: 2026, color: "#ff6584" },
 ];
 
-export default function CalculadoraTarjeta() {
+interface Props {
+  cupoTotal:     number;
+  limiteMensual: number;
+}
+
+export default function CalculadoraTarjeta({ cupoTotal, limiteMensual }: Props) {
   const [cuotas, setCuotas] = useState<Cuota[]>(CUOTAS_INICIALES);
   const [nextId, setNextId] = useState(3);
   const [cupoDisponible, setCupoDisponible] = useState(0);
-  const [limitInput, setLimitInput] = useState(850_000);
+  const [limitInput, setLimitInput] = useState(limiteMensual);
   const [viewYear, setViewYear] = useState(REF_YEAR);
   const [viewMonth, setViewMonth] = useState(REF_MONTH);
 
@@ -101,7 +105,7 @@ export default function CalculadoraTarjeta() {
   const [fAnio, setFAnio] = useState("");
 
   // Usuario ingresa cupo disponible; utilizado se deriva internamente
-  const cupoUtilizado = Math.max(0, CUPO_TOTAL - cupoDisponible);
+  const cupoUtilizado = Math.max(0, cupoTotal - cupoDisponible);
 
   const comprometido = totalCuotasRestantes(cuotas);
   const contado = Math.max(0, cupoUtilizado - comprometido);
