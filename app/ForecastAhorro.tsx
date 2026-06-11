@@ -183,7 +183,7 @@ export default function ForecastAhorro({ liquidoMensual }: { liquidoMensual: num
               </div>
               <div style={{ textAlign: "right" }}>
                 <Label>Gasto mensual</Label>
-                <div style={{ fontSize: 32, fontWeight: 300, letterSpacing: "-0.04em", color: C.red, fontVariantNumeric: "tabular-nums" }}>-{FK(gasto)}</div>
+                <div style={{ fontSize: 32, fontWeight: 300, letterSpacing: "-0.04em", color: C.red, fontVariantNumeric: "tabular-nums" }}>-{F(gasto)}</div>
                 <div style={{ fontSize: 12, color: C.muted, marginTop: 3 }}>{100 - tasaPct}% del ingreso</div>
               </div>
             </div>
@@ -195,6 +195,35 @@ export default function ForecastAhorro({ liquidoMensual }: { liquidoMensual: num
                 <span style={{ fontSize: 12, color: C.muted }}>{tasaPct}% del ingreso</span>
                 <span style={{ fontSize: 13, fontWeight: 600, color: C.green }}>{FK(ahorroM * 12)} al año</span>
               </div>
+            </div>
+          </Card>
+
+          {/* Comparativa de los 3 escenarios */}
+          <Card>
+            <div style={{ fontSize: 11, fontWeight: 600, color: C.muted, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 12 }}>Total por escenario</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 1, background: C.border, borderRadius: 12, overflow: "hidden" }}>
+              {(["low","mid","high"] as Sc[]).map(s => {
+                const g = gastoTotal(liquidoMensual, s);
+                const a = ahorroMes(liquidoMensual, s);
+                const isActive = sc === s;
+                return (
+                  <button key={s} onClick={() => setSc(s)} style={{
+                    background: isActive ? C.surface2 : C.surface,
+                    border: "none", cursor: "pointer", padding: "14px 12px",
+                    textAlign: "center", fontFamily: "inherit",
+                    outline: isActive ? `2px solid ${scColors[s]}44` : "none",
+                    outlineOffset: -2, transition: "all .15s",
+                  }}>
+                    <div style={{ fontSize: 10, fontWeight: 600, color: scColors[s], letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 6 }}>{scLabels[s]}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: C.red, fontVariantNumeric: "tabular-nums", marginBottom: 4 }}>-{FK(g)}</div>
+                    <div style={{ fontSize: 11, color: C.muted, fontVariantNumeric: "tabular-nums" }}>{F(g)}</div>
+                    <div style={{ marginTop: 8, paddingTop: 8, borderTop: `1px solid ${C.border}` }}>
+                      <div style={{ fontSize: 10, color: C.muted, marginBottom: 2 }}>ahorro</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: a >= 0 ? C.green : C.red, fontVariantNumeric: "tabular-nums" }}>{FK(a)}</div>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </Card>
 
@@ -243,8 +272,12 @@ export default function ForecastAhorro({ liquidoMensual }: { liquidoMensual: num
                 <span style={{ fontSize: 14, fontWeight: 600, color: g.color || C.secondary, fontVariantNumeric: "tabular-nums" }}>{F(g.v)}</span>
               </div>
             ))}
-            <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 14, marginTop: 4 }}>
-              <span style={{ fontSize: 14, color: C.text, fontWeight: 500 }}>Ahorro</span>
+            <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 14, marginTop: 4, borderTop: `1px solid ${C.border}` }}>
+              <span style={{ fontSize: 14, color: C.secondary, fontWeight: 500 }}>Total gastos</span>
+              <span style={{ fontSize: 16, fontWeight: 700, color: C.red, fontVariantNumeric: "tabular-nums" }}>-{F(gasto)}</span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 10, marginTop: 4 }}>
+              <span style={{ fontSize: 14, color: C.text, fontWeight: 600 }}>Ahorro neto</span>
               <span style={{ fontSize: 20, fontWeight: 700, color: C.green, fontVariantNumeric: "tabular-nums" }}>{F(ahorroM)}</span>
             </div>
           </Card>
