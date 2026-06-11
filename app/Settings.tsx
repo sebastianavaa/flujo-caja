@@ -57,7 +57,12 @@ export default function Settings({ settings, onUpdate }: Props) {
     <div className={styles.wrap}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 28 }}>
         <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--text)" }}>Configuración</div>
-        <div className={styles.savedBadge} style={{ opacity: savedFlash ? 1 : 0 }}>Guardado ✓</div>
+        <button
+          className={`${styles.saveBtn} ${savedFlash ? styles.saveBtnDone : ""}`}
+          onClick={() => { setSavedFlash(true); setTimeout(() => setSavedFlash(false), 2000); }}
+        >
+          {savedFlash ? "Guardado ✓" : "Guardar"}
+        </button>
       </div>
 
       <div className={styles.section}>

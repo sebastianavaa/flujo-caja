@@ -187,9 +187,12 @@ export default function CalculadoraTarjeta({ cupoTotal, limiteMensual, initialCu
         <header className={styles.header}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div className={styles.labelTag}>Control financiero</div>
-            <div className={styles.savedBadge} style={{ opacity: savedFlash ? 1 : 0 }}>
-              Guardado ✓
-            </div>
+            <button
+              className={`${styles.saveBtn} ${savedFlash ? styles.saveBtnDone : ""}`}
+              onClick={() => { setSavedFlash(true); setTimeout(() => setSavedFlash(false), 2000); }}
+            >
+              {savedFlash ? "Guardado ✓" : "Guardar"}
+            </button>
           </div>
           <h1 className={styles.h1}>Facturación<br /><span style={{ color: "var(--accent)" }}>Tarjeta</span></h1>
           <p className={styles.subtitle}>Ciclo de facturación: día 23 de cada mes</p>
