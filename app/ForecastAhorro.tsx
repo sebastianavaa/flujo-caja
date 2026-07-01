@@ -365,14 +365,26 @@ export default function ForecastAhorro({ liquidoMensual, gastosReales, caeDeuda,
 
       {/* ── REAL ── */}
       {tab === "real" && (() => {
-        // 2 meses futuros + mes actual + 5 pasados = 8 total
+        // ascendente: 5 pasados → actual → 2 futuros
         const recentMonths = Array.from({ length: 8 }, (_, i) => {
-          const d = new Date(new Date().getFullYear(), new Date().getMonth() + 2 - i, 1);
+          const d = new Date(new Date().getFullYear(), new Date().getMonth() - 5 + i, 1);
           const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
           return { key, label: `${MONTHS_ES_F[d.getMonth()].slice(0, 3)} ${d.getFullYear()}` };
         });
         const realVal = gastosReales[realKey] ?? 0;
         const selectedMonth = recentMonths.find(m => m.key === realKey);
+
+        // Chart / promedio / forecast
+        const chartData = recentMonths.map(m => ({ ...m, value: gastosReales[m.key] ?? 0, hasData: !!gastosReales[m.key] }));
+        const withData = chartData.filter(d => d.hasData);
+        const avgReal = withData.length ? Math.round(withData.reduce((s, d) => s + d.value, 0) / withData.length) : 0;
+        const fcastMid = gastoTotal(liquidoMensual, "mid");
+        const maxVal = Math.max(...chartData.map(d => d.value), fcastMid, 1);
+        const VW = 320, VH = 150, PL = 6, PR = 6, PT = 20, PB = 28;
+        const cW = VW - PL - PR, cH = VH - PT - PB, n = chartData.length;
+        const bW = (cW / n) * 0.55;
+        const yPx = (v: number) => PT + cH - (v / maxVal) * cH;
+        const xPx = (i: number) => PL + (i + 0.5) * (cW / n);
         const ahorroReal = realVal > 0 ? liquidoMensual - realVal : null;
 
         return (
@@ -419,6 +431,78 @@ export default function ForecastAhorro({ liquidoMensual, gastosReales, caeDeuda,
                 </div>
               )}
             </Card>
+
+            {withData.length > 0 && (
+              <Card>
+                <div style={{ fontSize: 11, fontWeight: 600, color: C.muted, letterSpacing: "0.06em", textTransform: "uppercase" as const, marginBottom: 8 }}>Gasto real mensual</div>
+                {avgReal > 0 && (
+                  <div style={{ display: "flex", gap: 20, marginBottom: 10 }}>
+                    <div>
+                      <div style={{ fontSize: 11, color: C.muted }}>Promedio real</div>
+                      <div style={{ fontSize: 17, fontWeight: 700, color: C.green, fontVariantNumeric: "tabular-nums" }}>${(avgReal / 1000).toFixed(0)}k/mes</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 11, color: C.muted }}>vs forecast normal</div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: avgReal <= fcastMid ? C.green : C.red, fontVariantNumeric: "tabular-nums" }}>
+                        {avgReal <= fcastMid ? `-$${((fcastMid - avgReal) / 1000).toFixed(0)}k bajo` : `+$${((avgReal - fcastMid) / 1000).toFixed(0)}k sobre`}
+                      </div>
+                    </div>
+                    {withData.length >= 2 && (
+                      <div>
+                        <div style={{ fontSize: 11, color: C.muted }}>Meses registrados</div>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: C.secondary }}>{withData.length}</div>
+                      </div>
+                    )}
+                  </div>
+                )}
+                <svg viewBox={`0 0 ${VW} ${VH}`} style={{ width: "100%", overflow: "visible" }}>
+                  {/* forecast mid line */}
+                  <line x1={PL} x2={VW - PR} y1={yPx(fcastMid)} y2={yPx(fcastMid)}
+                    stroke={C.yellow} strokeWidth="1" strokeDasharray="4 3" opacity="0.6" />
+                  <text x={VW - PR - 2} y={yPx(fcastMid) - 3} fill={C.yellow} fontSize="8" textAnchor="end" opacity="0.8">forecast</text>
+                  {/* avg real line */}
+                  {avgReal > 0 && <>
+                    <line x1={PL} x2={VW - PR} y1={yPx(avgReal)} y2={yPx(avgReal)}
+                      stroke={C.green} strokeWidth="1" strokeDasharray="4 3" opacity="0.7" />
+                    <text x={PL + 2} y={yPx(avgReal) - 3} fill={C.green} fontSize="8" opacity="0.9">prom.</text>
+                  </>}
+                  {/* bars */}
+                  {chartData.map((d, i) => {
+                    const x = xPx(i) - bW / 2;
+                    const barH = d.hasData ? (d.value / maxVal) * cH : 0;
+                    const y = PT + cH - barH;
+                    const isSel = d.key === realKey;
+                    return (
+                      <g key={d.key} style={{ cursor: "pointer" }} onClick={() => setRealKey(d.key)}>
+                        {d.hasData ? (
+                          <rect x={x} y={y} width={bW} height={barH}
+                            rx="3" fill={isSel ? C.accent : "rgba(191,90,242,0.45)"} />
+                        ) : (
+                          <rect x={x} y={PT} width={bW} height={cH}
+                            rx="3" fill={C.surface2} opacity="0.5" />
+                        )}
+                        {d.hasData && (
+                          <text x={xPx(i)} y={y - 3} fill={C.text} fontSize="8" textAnchor="middle">
+                            ${(d.value / 1000).toFixed(0)}k
+                          </text>
+                        )}
+                        <text x={xPx(i)} y={VH - PB + 10} fill={isSel ? C.accent : C.muted} fontSize="8" textAnchor="middle">{d.label.split(" ")[0]}</text>
+                      </g>
+                    );
+                  })}
+                </svg>
+                <div style={{ display: "flex", gap: 16, marginTop: 4 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                    <svg width="16" height="8"><line x1="0" x2="16" y1="4" y2="4" stroke={C.green} strokeWidth="1" strokeDasharray="4 3" /></svg>
+                    <span style={{ fontSize: 10, color: C.muted }}>Promedio real</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                    <svg width="16" height="8"><line x1="0" x2="16" y1="4" y2="4" stroke={C.yellow} strokeWidth="1" strokeDasharray="4 3" /></svg>
+                    <span style={{ fontSize: 10, color: C.muted }}>Forecast normal</span>
+                  </div>
+                </div>
+              </Card>
+            )}
 
             {realVal > 0 && (
               <Card>
