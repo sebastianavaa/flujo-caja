@@ -8,8 +8,16 @@ const MONTHS_ES = [
   "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre",
 ];
 
-const REF_YEAR = 2026;
-const REF_MONTH = 6;
+function getBillingPeriod(): { year: number; month: number } {
+  const today = new Date();
+  if (today.getDate() > 23) {
+    const next = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+    return { year: next.getFullYear(), month: next.getMonth() + 1 };
+  }
+  return { year: today.getFullYear(), month: today.getMonth() + 1 };
+}
+
+const { year: REF_YEAR, month: REF_MONTH } = getBillingPeriod();
 
 const COLORS = ["#bf5af2","#30d158","#ffd60a","#ff9f0a","#ff453a","#64d2ff","#2997ff"];
 
