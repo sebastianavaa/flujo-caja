@@ -149,6 +149,18 @@ export default function CalculadoraTarjeta({ cupoTotal, limiteMensual, initialCu
 
   const comprometido = totalCuotasRestantes(cuotas);
   const contado = Math.max(0, cupoUtilizado - comprometido);
+
+  // Cuotas desde el PRÓXIMO ciclo (para mostrar en display — julio ya va en el pago actual)
+  const nextCycleDate = new Date(REF_YEAR, REF_MONTH, 1); // REF_MONTH 1-indexed → 0-indexed = mes siguiente
+  const nextCycleY = nextCycleDate.getFullYear();
+  const nextCycleM = nextCycleDate.getMonth() + 1;
+  const comprometidoFuturo = cuotas.reduce((s, c) => {
+    const { status, remaining } = statusFor(c, nextCycleY, nextCycleM);
+    if (status === "active") return s + remaining * fee(c);
+    if (status === "future") return s + c.total;
+    return s;
+  }, 0);
+  const pagoCicloActual = Math.max(0, cupoUtilizado - comprometidoFuturo);
   const activasRef = cuotas.filter((c) => statusFor(c, REF_YEAR, REF_MONTH).status === "active");
   const maxRem = activasRef.reduce((m, c) => Math.max(m, statusFor(c, REF_YEAR, REF_MONTH).remaining), 0);
 
@@ -284,7 +296,7 @@ export default function CalculadoraTarjeta({ cupoTotal, limiteMensual, initialCu
               />
             </div>
             <div className={styles.ibSub}>
-              {comprometido > 0 ? `${m(comprometido)} en cuotas · ` : ""}{hideAmounts ? H : `$${fmt(contado)}`} contado
+              {comprometidoFuturo > 0 ? `${m(comprometidoFuturo)} cuotas futuras · ` : ""}{hideAmounts ? H : `$${fmt(pagoCicloActual)}`} a pagar
             </div>
           </div>
           <div className={`${styles.inputBox} ${styles.limitBox}`}>
@@ -308,12 +320,12 @@ export default function CalculadoraTarjeta({ cupoTotal, limiteMensual, initialCu
         {/* CUPO DETAIL */}
         <div className={styles.cupoDetail}>
           <div className={styles.cdItem}>
-            <div className={styles.cdL}>Cuotas comprometidas</div>
-            <div className={styles.cdV}>{m(comprometido)}</div>
+            <div className={styles.cdL}>Cuotas futuras ({MONTHS_ES[nextCycleM - 1].slice(0, 3)}+)</div>
+            <div className={styles.cdV}>{m(comprometidoFuturo)}</div>
           </div>
           <div className={styles.cdItem}>
-            <div className={styles.cdL}>Libre (contado)</div>
-            <div className={styles.cdV} style={{ color: "var(--green)" }}>{hideAmounts ? H : (contado > 0 ? `$${fmt(contado)}` : "$0")}</div>
+            <div className={styles.cdL}>Pago ciclo actual</div>
+            <div className={styles.cdV} style={{ color: "var(--accent)" }}>{hideAmounts ? H : (pagoCicloActual > 0 ? `$${fmt(pagoCicloActual)}` : "$0")}</div>
           </div>
           <div className={styles.cdItem}>
             <div className={styles.cdL}>Meses con cuotas</div>
