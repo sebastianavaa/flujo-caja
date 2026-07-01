@@ -365,8 +365,9 @@ export default function ForecastAhorro({ liquidoMensual, gastosReales, caeDeuda,
 
       {/* ── REAL ── */}
       {tab === "real" && (() => {
-        const recentMonths = Array.from({ length: 6 }, (_, i) => {
-          const d = new Date(new Date().getFullYear(), new Date().getMonth() - i, 1);
+        // 2 meses futuros + mes actual + 5 pasados = 8 total
+        const recentMonths = Array.from({ length: 8 }, (_, i) => {
+          const d = new Date(new Date().getFullYear(), new Date().getMonth() + 2 - i, 1);
           const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
           return { key, label: `${MONTHS_ES_F[d.getMonth()].slice(0, 3)} ${d.getFullYear()}` };
         });
