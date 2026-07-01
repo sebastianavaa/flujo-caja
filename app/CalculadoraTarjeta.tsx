@@ -174,8 +174,8 @@ export default function CalculadoraTarjeta({ cupoTotal, limiteMensual, initialCu
 
   const pct = limitInput > 0 ? Math.min(Math.round((totalMes / limitInput) * 100), 150) : 0;
 
-  const billingM = viewMonth === 12 ? 1 : viewMonth + 1;
-  const billingY = viewMonth === 12 ? viewYear + 1 : viewYear;
+  const billingM = viewMonth;
+  const billingY = viewYear;
 
   const chipLabels = { ok: "✓ OK", warn: "⚠ ATENCIÓN", over: "✕ EXCEDE" };
   const chipClass = { ok: styles.chipOk, warn: styles.chipWarn, over: styles.chipOver };
